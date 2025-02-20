@@ -1,4 +1,4 @@
-# go_go
+# go_linguage_app
 
 A new Flutter project.
 
