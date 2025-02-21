@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_linguage/core/theme/app_theme.dart';
+import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,8 +13,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: Scaffold(appBar: AppBar(), body: Placeholder()),
+      theme: AppTheme.themeLightData,
+      home: Scaffold(appBar: AppBar(), body: SignUpPage()),
     );
   }
 }
