@@ -70,7 +70,7 @@ class AppTypography {
       height: 16 / 12,
       fontWeight: FontWeight.w400,
     ),
-    
+
     // label text style
     labelLarge: GoogleFonts.notoSans(
       fontSize: 14,
