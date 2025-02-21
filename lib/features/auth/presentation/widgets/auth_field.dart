@@ -18,6 +18,7 @@ class AuthField extends StatelessWidget {
         hintText: hintText,
         prefixIcon: Icon(prefixIcon, color: AppColor.secondary2, size: 20),
       ),
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
     );
   }
 }

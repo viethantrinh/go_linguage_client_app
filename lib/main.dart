@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_linguage/core/theme/app_theme.dart';
+import 'package:go_linguage/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
 
 void main() {
