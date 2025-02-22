@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 
 class AuthButton extends StatelessWidget {
-  const AuthButton({super.key, required this.buttonText});
+  const AuthButton({super.key, required this.buttonText, required this.onPressFn, this.formKey});
 
   final String buttonText;
+  final GlobalKey<FormState>? formKey;
+  final Function() onPressFn;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: AppColor.primary500,
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: AppColor.primary500),
       width: double.infinity,
       height: 48,
       child: ElevatedButton(
@@ -21,7 +20,7 @@ class AuthButton extends StatelessWidget {
           shadowColor: AppColor.transparentColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        onPressed: () {},
+        onPressed: onPressFn,
         child: Text(buttonText, style: Theme.of(context).textTheme.labelLarge),
       ),
     );

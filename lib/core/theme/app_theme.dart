@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_linguage/core/theme/app_app_bar_theme.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/core/theme/app_input_decoration_theme.dart';
 import 'package:go_linguage/core/theme/app_typography.dart';
@@ -10,5 +11,6 @@ class AppTheme {
     primaryTextTheme: AppTypography.textTheme,
     scaffoldBackgroundColor: AppColor.white,
     inputDecorationTheme: AppInputDecorationTheme.inputDecorationTheme,
+    appBarTheme: AppAppBarTheme.appBarTheme,
   );
 }

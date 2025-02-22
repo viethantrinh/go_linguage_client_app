@@ -15,6 +15,8 @@ class AppInputDecorationTheme {
     contentPadding: const EdgeInsets.symmetric(vertical: 12),
     enabledBorder: _border(),
     focusedBorder: _border(AppColor.secondary2),
+    errorBorder: _border(AppColor.critical),
+    focusedErrorBorder: _border(AppColor.critical),
     hintStyle: GoogleFonts.notoSans(
       color: AppColor.secondary2,
       height: 1,

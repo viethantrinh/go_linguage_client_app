@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_linguage/core/theme/app_theme.dart';
-import 'package:go_linguage/features/auth/presentation/pages/sign_in_page.dart';
-import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
+import 'package:go_linguage/features/auth/presentation/pages/on_board_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeLightData,
-      home: Scaffold(appBar: AppBar(), body: SignUpPage()),
+      home: Scaffold(body: OnBoardPage()),
     );
   }
 }
