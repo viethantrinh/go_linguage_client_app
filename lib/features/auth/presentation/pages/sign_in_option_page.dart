@@ -1,5 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:go_linguage/core/routes/app_route_path.dart';
+import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/features/auth/presentation/widgets/auth_option_button.dart';
 import 'package:go_linguage/features/auth/presentation/widgets/term_privacy_text.dart';
 import 'package:go_router/go_router.dart';
@@ -23,14 +25,12 @@ class SignInOptionPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              Text(
-                'Theo dõi tiến độ học tập của bạn',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Chào mừng trở lại', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 8),
               Text(
-                'Tạo tài khoản để lưu tiến độ học tập của bạn',
+                'Hãy sẵn sàng để tiếp tục hành trình học ngôn ngữ của bạn',
                 style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
               ),
               Expanded(child: SizedBox()),
               Image.asset('assets/images/img_sign_in_option.png'),
@@ -59,7 +59,7 @@ class SignInOptionPage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               TermPrivacyText(),
-              const SizedBox(height: 40),
+              if (Platform.isAndroid) const SizedBox(height: 40),
             ],
           ),
         ),

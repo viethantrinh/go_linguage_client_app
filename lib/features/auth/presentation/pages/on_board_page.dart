@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_linguage/core/routes/app_route_path.dart';
+import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/features/auth/presentation/widgets/auth_button.dart';
 import 'package:go_router/go_router.dart';

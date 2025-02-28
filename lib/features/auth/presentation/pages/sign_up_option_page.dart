@@ -1,5 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:go_linguage/core/routes/app_route_path.dart';
+import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/features/auth/presentation/widgets/auth_option_button.dart';
 import 'package:go_linguage/features/auth/presentation/widgets/term_privacy_text.dart';
 import 'package:go_router/go_router.dart';
@@ -59,7 +61,7 @@ class SignUpOptionPage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               TermPrivacyText(),
-              const SizedBox(height: 40),
+              if (Platform.isAndroid) const SizedBox(height: 40),
             ],
           ),
         ),

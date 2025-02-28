@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 
 class AuthButton extends StatelessWidget {
-  const AuthButton({super.key, required this.buttonText, required this.onPressFn, this.formKey});
+  const AuthButton({super.key, required this.buttonText, required this.onPressFn});
 
   final String buttonText;
-  final GlobalKey<FormState>? formKey;
   final Function() onPressFn;
 
   @override
