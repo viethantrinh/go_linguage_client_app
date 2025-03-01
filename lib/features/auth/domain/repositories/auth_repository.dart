@@ -18,4 +18,6 @@ abstract interface class AuthRepository {
   Future<Either<Failure, bool>> checkAuthStatus();
 
   Future<Either<Failure, String?>> getToken();
+
+  Future<Either<Failure, void>> signOut();
 }

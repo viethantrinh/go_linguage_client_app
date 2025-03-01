@@ -23,3 +23,4 @@ final class AuthWithGoogle extends AuthEvent {}
 final class AuthSignOut extends AuthEvent {}
 
 final class AuthStatusCheck extends AuthEvent {}
+

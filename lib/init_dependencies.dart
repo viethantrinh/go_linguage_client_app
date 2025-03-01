@@ -8,6 +8,7 @@ import 'package:go_linguage/features/auth/domain/repositories/auth_repository.da
 import 'package:go_linguage/features/auth/domain/usecases/check_auth_status_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/google_auth_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_in_usecase.dart';
+import 'package:go_linguage/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:go_linguage/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -58,12 +59,16 @@ void _initAuthDependencies() {
     ..registerFactory<CheckAuthStatusUsecase>(
       () => CheckAuthStatusUsecase(serviceLocator<AuthRepository>()),
     )
+    ..registerFactory<SignOutUsecase>(
+      () => SignOutUsecase(serviceLocator<AuthRepository>()),
+    )
     ..registerLazySingleton<AuthBloc>(
       () => AuthBloc(
         serviceLocator<SignInUsecase>(),
         serviceLocator<SignUpUsecase>(),
         serviceLocator<CheckAuthStatusUsecase>(),
         serviceLocator<GoogleAuthUsecase>(),
+        serviceLocator<SignOutUsecase>(),
       ),
     );
 }

@@ -22,6 +22,8 @@ abstract interface class AuthRemoteDataSource {
   Future<GoogleAuthResponseModel> authenticationWithGoogle();
 
   Future<bool> validateToken({required String token});
+
+  Future<void> invalidateToken({required String token});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -148,6 +150,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     } catch (e) {
       throw Exception('Introspect token failed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> invalidateToken({required String token}) async {
+    try {
+      final response = await dioClient.post(
+        url: ApiConstants.signOut,
+        resultFromJson: (json) => null,
+        jsonBody: {'token': token},
+      );
+
+      if (response.isSuccess) {
+        return;
+      } else {
+        String apiPath = response.errorResponse!.apiPath;
+        List<String> errorMessages = response.errorResponse!.errors;
+        final errorMessage =
+            errorMessages.isEmpty ? errorMessages.first : response.message;
+        throw Exception('$errorMessage occured on $apiPath');
+      }
+    } catch (e) {
+      throw Exception('Something wrong when sign out: ${e.toString()}');
     }
   }
 }

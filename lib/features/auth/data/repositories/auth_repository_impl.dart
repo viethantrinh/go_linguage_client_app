@@ -103,4 +103,20 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> signOut() async {
+    try {
+      var currentToken = await authLocalDataSource.getToken();
+      if (currentToken == null) {
+        // ignore: void_checks
+        return Right(Void);
+      }
+      authRemoteDataSource.invalidateToken(token: currentToken);
+      // ignore: void_checks
+      return Right(Void);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

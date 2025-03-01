@@ -25,6 +25,7 @@ class _SplashPageState extends State<SplashPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(Duration(seconds: 2));
       // Now you can safely access the bloc
+      // ignore: use_build_context_synchronously
       context.read<AuthBloc>().add(AuthStatusCheck());
     });
     return BlocConsumer<AuthBloc, AuthState>(

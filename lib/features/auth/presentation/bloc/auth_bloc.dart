@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_linguage/core/log/log.dart';
@@ -5,6 +7,7 @@ import 'package:go_linguage/core/usecase/use_case.dart';
 import 'package:go_linguage/features/auth/domain/usecases/check_auth_status_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/google_auth_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_in_usecase.dart';
+import 'package:go_linguage/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_up_usecase.dart';
 
 part 'auth_event.dart';
@@ -15,21 +18,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignUpUsecase _signUpUsecase;
   final CheckAuthStatusUsecase _checkAuthStatusUsecase;
   final GoogleAuthUsecase _googleAuthUsecase;
+  final SignOutUsecase _signOutUsecase;
 
   AuthBloc(
     SignInUsecase signInUseCase,
     SignUpUsecase signUpUseCase,
     CheckAuthStatusUsecase checkAuthStatusUseCase,
     GoogleAuthUsecase googleAuthUseCase,
+    SignOutUsecase signOutUseCase,
   ) : _signInUsecase = signInUseCase,
       _signUpUsecase = signUpUseCase,
       _checkAuthStatusUsecase = checkAuthStatusUseCase,
       _googleAuthUsecase = googleAuthUseCase,
+      _signOutUsecase = signOutUseCase,
       super(AuthInitial()) {
     on<AuthSignIn>(_signInWithEmailPassword);
     on<AuthSignUp>(_signUpWithEmailPassword);
     on<AuthStatusCheck>(_checkAuthStatus);
     on<AuthWithGoogle>(_authenticationWithGoogle);
+    on<AuthSignOut>(_signOut);
   }
 
   Future<void> _signInWithEmailPassword(
@@ -110,6 +117,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             AuthFailure(message: 'Authentication token is invalid or expired'),
           );
         }
+      },
+    );
+  }
+
+  Future<void> _signOut(AuthSignOut event, Emitter<AuthState> emit) async {
+    final result = await _signOutUsecase.call(NoParams());
+
+    result.fold(
+      (failure) =>
+          Log.getLogger.d('An error when sign out: ${failure.message}'),
+      (_) {
+        emit(AuthSignedOut());
       },
     );
   }
