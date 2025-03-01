@@ -13,6 +13,8 @@ abstract interface class AuthRepository {
     required String password,
   });
 
+  Future<Either<Failure, void>> authenticationWithGoogle();
+
   Future<Either<Failure, bool>> checkAuthStatus();
 
   Future<Either<Failure, String?>> getToken();

@@ -2,10 +2,10 @@ import 'dart:ffi';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:go_linguage/core/error/failures.dart';
+import 'package:go_linguage/core/log/log.dart';
 import 'package:go_linguage/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:go_linguage/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:go_linguage/features/auth/domain/repositories/auth_repository.dart';
-import 'package:logger/web.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource authRemoteDataSource;
@@ -27,7 +27,9 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
       authLocalDataSource.cacheToken(response.token);
-      Logger().d('After sign in successful, the token is cached has value: ${await authLocalDataSource.getToken()}');
+      Log.getLogger.d(
+        'After sign in successful, the token is cached has value: ${await authLocalDataSource.getToken()}',
+      );
       // ignore: void_checks
       return Right(Void);
     } catch (e) {
@@ -48,7 +50,24 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
       authLocalDataSource.cacheToken(response.token);
-      Logger().d('After sign up successful, the token is cached has value: ${await authLocalDataSource.getToken()}');
+      Log.getLogger.d(
+        'After sign up successful, the token is cached has value: ${await authLocalDataSource.getToken()}',
+      );
+      // ignore: void_checks
+      return Right(Void);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> authenticationWithGoogle() async {
+    try {
+      final result = await authRemoteDataSource.authenticationWithGoogle();
+      authLocalDataSource.cacheToken(result.token);
+      Log.getLogger.d(
+        'After authentication with google successful, the token is cached has value: ${await authLocalDataSource.getToken()}',
+      );
       // ignore: void_checks
       return Right(Void);
     } catch (e) {

@@ -18,6 +18,8 @@ final class AuthSignUp extends AuthEvent {
   AuthSignUp({required this.name, required this.email, required this.password});
 }
 
+final class AuthWithGoogle extends AuthEvent {}
+
 final class AuthSignOut extends AuthEvent {}
 
 final class AuthStatusCheck extends AuthEvent {}
