@@ -1,3 +1,4 @@
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_linguage/core/network/dio_client.dart';
 import 'package:go_linguage/core/secret/app_secret.dart';
@@ -11,21 +12,42 @@ import 'package:go_linguage/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:go_linguage/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:go_linguage/features/payment/data/datasources/subscription_remote_data_source.dart';
+import 'package:go_linguage/features/payment/data/repositories/subscription_repository_impl.dart';
+import 'package:go_linguage/features/payment/domain/repositories/subscription_repository.dart';
+import 'package:go_linguage/features/payment/domain/usecases/create_subscription_usecase.dart';
+import 'package:go_linguage/features/payment/domain/usecases/request_payment_usecase.dart';
+import 'package:go_linguage/features/payment/presentation/bloc/subscription_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final serviceLocator = GetIt.I;
 
 Future<void> initializeDependencies() async {
+  // register shared preference
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   serviceLocator.registerSingleton<SharedPreferences>(sharedPreferences);
-  serviceLocator.registerLazySingleton<DioClient>(() => DioClient());
+  // register shared preference
+
+  // register dio http client
+  serviceLocator.registerFactory<DioClient>(() => DioClient());
+  // register dio http client
+
+  // register google sign in
   GoogleSignIn googleSignIn = GoogleSignIn(
     clientId: AppSecret.iosClientId,
     serverClientId: AppSecret.serverClientId,
   );
   serviceLocator.registerLazySingleton(() => googleSignIn);
+  // register google sign in
+
+  // register stripe configuration
+  Stripe.publishableKey = AppSecret.stripePublishableKey;
+  await Stripe.instance.applySettings();
+  // register stripe configuration
+
   _initAuthDependencies();
+  _initSubscriptionDependencies();
 }
 
 void _initAuthDependencies() {
@@ -69,6 +91,43 @@ void _initAuthDependencies() {
         serviceLocator<CheckAuthStatusUsecase>(),
         serviceLocator<GoogleAuthUsecase>(),
         serviceLocator<SignOutUsecase>(),
+      ),
+    );
+}
+
+void _initSubscriptionDependencies() {
+  serviceLocator
+    // ..registerFactory<AuthLocalDataSource>(
+    //   () => AuthLocalDataSourceImpl(
+    //     sharedPreferences: serviceLocator<SharedPreferences>(),
+    //   ),
+    // )
+    ..registerFactory<SubscriptionRemoteDataSource>(
+      () => SubscriptionRemoteDataSourceImpl(
+        dioClient: serviceLocator<DioClient>(),
+        authLocalDataSource: serviceLocator<AuthLocalDataSource>(),
+      ),
+    )
+    ..registerFactory<SubscriptionRepository>(
+      () => SubscriptionRepositoryImpl(
+        subscriptionRemoteDataSource:
+            serviceLocator<SubscriptionRemoteDataSource>(),
+      ),
+    )
+    ..registerFactory<RequestPaymentUsecase>(
+      () => RequestPaymentUsecase(
+        subscriptionRepository: serviceLocator<SubscriptionRepository>(),
+      ),
+    )
+    ..registerFactory<CreateSubscriptionUsecase>(
+      () => CreateSubscriptionUsecase(
+        subscriptionRepository: serviceLocator<SubscriptionRepository>(),
+      ),
+    )
+    ..registerLazySingleton<SubscriptionBloc>(
+      () => SubscriptionBloc(
+        requestPaymentUsecase: serviceLocator<RequestPaymentUsecase>(),
+        createSubscriptionUsecase: serviceLocator<CreateSubscriptionUsecase>()
       ),
     );
 }

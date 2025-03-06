@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:go_linguage/core/constants/api_constants.dart';
 import 'package:go_linguage/core/model/api_response.dart';
-  
+
 class DioClient {
   final Dio _dio;
   static final String authorizationHeader = 'Authorization';
@@ -40,15 +40,19 @@ class DioClient {
     required dynamic jsonBody,
     Map<String, dynamic>? queryParams,
     Options? options,
+    String? token,
   }) async {
     try {
+      if (token != null) {
+        _dio.options.headers[authorizationHeader] = 'Bearer $token';
+      }
+
       final response = await _dio.post(
         url,
         data: jsonBody,
         queryParameters: queryParams,
         options: options,
       );
-
       return ApiResponseModel<T>.fromJson(response.data, resultFromJson);
     } on DioException catch (e) {
       if (e.response != null) {
@@ -56,13 +60,5 @@ class DioClient {
       }
       rethrow;
     }
-  }
-
-  void setAuthorizationHeader(String token) {
-    _dio.options.headers[authorizationHeader] = 'Bearer $token';
-  }
-
-  void clearAuthorizationHeader(String token) {
-    _dio.options.headers.remove(authorizationHeader);
   }
 }
