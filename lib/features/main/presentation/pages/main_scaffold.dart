@@ -24,7 +24,7 @@ class _MainScaffoldState extends State<MainScaffold> {
             border: Border(top: BorderSide(color: AppColor.line)),
           ),
           child: Padding(
-            padding: const EdgeInsets.only(top: 18, bottom: 5),
+            padding: const EdgeInsets.only(top: 15, bottom: 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

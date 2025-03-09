@@ -35,7 +35,7 @@ Future<void> initializeDependencies() async {
 
   // register google sign in
   GoogleSignIn googleSignIn = GoogleSignIn(
-    clientId: AppSecret.iosClientId,
+    clientId: AppSecret.androidClientId,
     serverClientId: AppSecret.serverClientId,
   );
   serviceLocator.registerLazySingleton(() => googleSignIn);

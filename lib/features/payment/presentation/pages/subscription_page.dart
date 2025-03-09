@@ -46,17 +46,17 @@ class _SubsriptionPageState extends State<SubscriptionPage> {
         return Scaffold(
           backgroundColor: AppColor.surface,
           bottomNavigationBar: BottomAppBar(
-            padding: const EdgeInsets.only(left: 24, right: 24, top: 20),
-            height: 75,
+            padding:
+                const EdgeInsets.only(left: 24, right: 24, top: 15, bottom: 15),
             color: AppColor.white,
             child: SubscriptionButton(
               buttonText: 'Đăng ký dịch vụ',
               onSubscribe: () {
                 context.read<SubscriptionBloc>().add(
-                  SubscriptionPaymentRequestedEvent(
-                    subscriptionMonth: selectedOption,
-                  ),
-                );
+                      SubscriptionPaymentRequestedEvent(
+                        subscriptionMonth: selectedOption,
+                      ),
+                    );
               },
             ),
           ),

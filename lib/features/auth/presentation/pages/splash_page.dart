@@ -23,7 +23,7 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     // Use a post-frame callback to ensure the context is ready
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(Duration(seconds: 1));
       // Now you can safely access the bloc
       // ignore: use_build_context_synchronously
       context.read<AuthBloc>().add(AuthStatusCheck());
@@ -35,7 +35,8 @@ class _SplashPageState extends State<SplashPage> {
           context.go(AppRoutePath.home);
         } else if (state is AuthFailure) {
           // Auth failed, navigate to onboarding
-          context.go(AppRoutePath.onBoard);
+          context.go(AppRoutePath.onBoard); // default: for auth with backend
+          // context.go(AppRoutePath.home); // uncomment this to not auth with backend
         }
       },
       builder: (context, state) {

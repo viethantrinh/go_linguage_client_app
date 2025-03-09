@@ -31,8 +31,8 @@ class AuthOptionButton extends StatelessWidget {
         onPressed: onPressFn,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width: 70),
             if (assetPath != null) ...[
               Image.asset(assetPath!, width: 20, height: 20),
               SizedBox(width: 12),
@@ -40,7 +40,6 @@ class AuthOptionButton extends StatelessWidget {
               SizedBox(width: 22),
             ],
             Text(buttonText, style: Theme.of(context).textTheme.titleSmall),
-            Expanded(child: SizedBox()),
           ],
         ),
       ),
