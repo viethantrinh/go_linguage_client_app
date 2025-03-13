@@ -17,8 +17,13 @@ class DioClient {
     required T Function(Map<String, dynamic>) resultFromJson,
     Map<String, dynamic>? queryParams,
     Options? options,
+    String? token,
   }) async {
     try {
+      if (token != null) {
+        _dio.options.headers[authorizationHeader] = 'Bearer $token';
+      }
+      
       final response = await _dio.get(
         url,
         queryParameters: queryParams,

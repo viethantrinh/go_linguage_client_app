@@ -36,7 +36,7 @@ class _SplashPageState extends State<SplashPage> {
         } else if (state is AuthFailure) {
           // Auth failed, navigate to onboarding
           context.go(AppRoutePath.onBoard); // default: for auth with backend
-          // context.go(AppRoutePath.home); // uncomment this to not auth with backend
+          //context.go(AppRoutePath.home); // uncomment this to not auth with backend
         }
       },
       builder: (context, state) {
@@ -53,8 +53,8 @@ class _SplashPageState extends State<SplashPage> {
                 Text(
                   'GoLinguage',
                   style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                    color: AppColor.primary600,
-                  ),
+                        color: AppColor.primary600,
+                      ),
                 ),
                 const SizedBox(height: 30),
               ],
