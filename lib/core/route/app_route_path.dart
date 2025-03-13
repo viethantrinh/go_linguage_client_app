@@ -13,7 +13,9 @@ class AppRoutePath {
   static const String lesson = '/home/subject/:subjectId/lesson/:lessonId';
   static const String exam = '/exam';
   static const String dialog = '/dialog';
-
+  static const String user = '/user';
+  static const String userInformationUpdate = '/user/update';
+  static const String setting = '/setting';
   // Standalone routes without bottom navigation
   // static const String subject = '/subject/:subjectId';
   // static const String lesson = '/subject/:subjectId/lesson/:lessonId';

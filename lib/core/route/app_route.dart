@@ -8,11 +8,14 @@ import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/splash_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/dialog_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/exam_page.dart';
-import 'package:go_linguage/features/main/presentation/pages/home_page.dart';
+import 'package:go_linguage/features/home/presentation/pages/home_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/lesson_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/main_scaffold.dart';
 import 'package:go_linguage/features/main/presentation/pages/subject_page.dart';
 import 'package:go_linguage/features/payment/presentation/pages/subscription_page.dart';
+import 'package:go_linguage/features/setting/presentation/pages/setting.dart';
+import 'package:go_linguage/features/user_info/presentation/pages/user_information_update.dart';
+import 'package:go_linguage/features/user_info/presentation/pages/user_page.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRoute {
@@ -51,36 +54,46 @@ class AppRoute {
         builder: (context, state) => const SignInPage(),
       ),
       GoRoute(
+        path: AppRoutePath.user,
+        builder: (context, state) => const UserPage(),
+      ),
+      GoRoute(
+        path: AppRoutePath.userInformationUpdate,
+        builder: (context, state) => const UserInformationUpdate(),
+      ),
+      GoRoute(
+        path: AppRoutePath.setting,
+        builder: (context, state) => const SettingPage(),
+      ),
+      GoRoute(
         path: AppRoutePath.subscription,
-        pageBuilder:
-            (context, state) => CustomTransitionPage(
-              key: state.pageKey,
-              transitionsBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                const begin = Offset(0.0, 1.0);
-                const end = Offset.zero;
-                const curve = Curves.ease;
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          transitionsBuilder: (
+            context,
+            animation,
+            secondaryAnimation,
+            child,
+          ) {
+            const begin = Offset(0.0, 1.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
 
-                var tween = Tween(
-                  begin: begin,
-                  end: end,
-                ).chain(CurveTween(curve: curve));
+            var tween = Tween(
+              begin: begin,
+              end: end,
+            ).chain(CurveTween(curve: curve));
 
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
-                );
-              },
-              child: const SubscriptionPage(),
-            ),
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+          child: const SubscriptionPage(),
+        ),
       ),
 
-    
-      //       // Subject route as a standalone route
+      // Subject route as a standalone route
       // GoRoute(
       //   path: AppRoutePath.subject,
       //   parentNavigatorKey: _rootNavigatorKey,

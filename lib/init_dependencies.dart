@@ -12,6 +12,12 @@ import 'package:go_linguage/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:go_linguage/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:go_linguage/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:go_linguage/features/home/data/repositories/home_repository_impl.dart';
+import 'package:go_linguage/features/home/domain/repositories/home_repository.dart';
+import 'package:go_linguage/features/home/domain/usecases/view_usecase.dart';
+import 'package:go_linguage/features/home/presentation/bloc/home_bloc.dart';
+import 'package:go_linguage/features/main/presentation/bloc/main_bloc.dart';
 import 'package:go_linguage/features/payment/data/datasources/subscription_remote_data_source.dart';
 import 'package:go_linguage/features/payment/data/repositories/subscription_repository_impl.dart';
 import 'package:go_linguage/features/payment/domain/repositories/subscription_repository.dart';
@@ -92,6 +98,28 @@ void _initAuthDependencies() {
         serviceLocator<GoogleAuthUsecase>(),
         serviceLocator<SignOutUsecase>(),
       ),
+    )
+    ..registerFactory<HomeRemoteDataSourceImpl>(
+      () => HomeRemoteDataSourceImpl(
+        sharedPreferences: serviceLocator<SharedPreferences>(),
+        dioClient: serviceLocator<DioClient>(),
+      ),
+    )
+    ..registerFactory<HomeRepository>(
+      () => HomeRepositoryImpl(
+        homeRemoteDataSource: serviceLocator<HomeRemoteDataSourceImpl>(),
+      ),
+    )
+    ..registerFactory<ViewUsecase>(
+      () => ViewUsecase(serviceLocator<HomeRepository>()),
+    )
+    ..registerLazySingleton<HomeBloc>(
+      () => HomeBloc(
+        serviceLocator<ViewUsecase>(),
+      ),
+    )
+    ..registerLazySingleton<MainBloc>(
+      () => MainBloc(),
     );
 }
 
@@ -126,8 +154,8 @@ void _initSubscriptionDependencies() {
     )
     ..registerLazySingleton<SubscriptionBloc>(
       () => SubscriptionBloc(
-        requestPaymentUsecase: serviceLocator<RequestPaymentUsecase>(),
-        createSubscriptionUsecase: serviceLocator<CreateSubscriptionUsecase>()
-      ),
+          requestPaymentUsecase: serviceLocator<RequestPaymentUsecase>(),
+          createSubscriptionUsecase:
+              serviceLocator<CreateSubscriptionUsecase>()),
     );
 }
