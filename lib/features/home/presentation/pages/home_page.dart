@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_linguage/core/common/widgets/loading_indicator.dart';
 import 'package:go_linguage/core/common/widgets/progress_bar.dart';
 import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/features/home/data/models/home_model.dart';
 import 'package:go_linguage/features/home/presentation/bloc/home_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:go_linguage/features/main/presentation/bloc/main_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -61,7 +62,7 @@ class _HomePageState extends State<HomePage> {
       },
       builder: (context, state) {
         if (state is LoadingData) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: LoadingIndicator());
         }
         return Scaffold(
           backgroundColor: Colors.grey[200],
@@ -196,6 +197,7 @@ class _HomePageState extends State<HomePage> {
                                 horizontal: 25,
                                 vertical: 15,
                               ),
+                              height: 90,
                               decoration: BoxDecoration(
                                 color: AppColor.white,
                                 borderRadius: BorderRadius.circular(8.0),
@@ -205,6 +207,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 spacing: 20,
                                 children: [
                                   Image.network(
@@ -212,43 +215,64 @@ class _HomePageState extends State<HomePage> {
                                         .levels[indexLevel]
                                         .topics[indexTopic]
                                         .imageUrl,
-                                    height: 40,
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
                                   ),
                                   Expanded(
                                     child: Column(
-                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           spacing: 5,
                                           children: [
-                                            Image.asset(
-                                              "assets/icons/user_information/proficient.png",
-                                              height: 12,
-                                            ),
-                                            Text(
-                                                "${(state.props[0] as HomeResponseModel).levels[indexLevel].topics[indexTopic].totalUserXPPoints}/18")
+                                            if ((state.props[0]
+                                                        as HomeResponseModel)
+                                                    .levels[indexLevel]
+                                                    .topics[indexTopic]
+                                                    .totalUserXPPoints >
+                                                0) ...[
+                                              Image.asset(
+                                                "assets/icons/user_information/proficient.png",
+                                                height: 12,
+                                              ),
+                                              Text(
+                                                "${(state.props[0] as HomeResponseModel).levels[indexLevel].topics[indexTopic].totalUserXPPoints}/18",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleSmall,
+                                              )
+                                            ],
                                           ],
                                         ),
                                         Text(
-                                          (state.props[0] as HomeResponseModel)
-                                              .levels[indexLevel]
-                                              .topics[indexTopic]
-                                              .name,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleSmall,
-                                        ),
-                                        SizedBox(height: 10),
-                                        PercentageProgressBar(
-                                          percentage: (state.props[0]
-                                                      as HomeResponseModel)
-                                                  .levels[indexLevel]
-                                                  .topics[indexTopic]
-                                                  .totalUserXPPoints /
-                                              18,
-                                        ),
+                                            (state.props[0]
+                                                    as HomeResponseModel)
+                                                .levels[indexLevel]
+                                                .topics[indexTopic]
+                                                .name,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleSmall),
+                                        if ((state.props[0]
+                                                    as HomeResponseModel)
+                                                .levels[indexLevel]
+                                                .topics[indexTopic]
+                                                .totalUserXPPoints >
+                                            0) ...[
+                                          SizedBox(height: 10),
+                                          PercentageProgressBar(
+                                            percentage: (state.props[0]
+                                                        as HomeResponseModel)
+                                                    .levels[indexLevel]
+                                                    .topics[indexTopic]
+                                                    .totalUserXPPoints /
+                                                18,
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ),

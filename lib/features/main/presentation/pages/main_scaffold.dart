@@ -36,7 +36,8 @@ class _MainScaffoldState extends State<MainScaffold> {
                     _buildNavItem(0, Icons.lightbulb_outline, 'Học'),
                     _buildNavItem(1, Icons.menu_book_outlined, 'Kiểm tra'),
                     _buildNavItem(2, Icons.chat_outlined, 'Hội thoại'),
-                    if (mainState.showProTab) _buildNavItem(3, Icons.diamond_outlined, 'Pro'),
+                    if (!mainState.showProTab)
+                      _buildNavItem(3, Icons.diamond_outlined, 'Pro'),
                   ],
                 ),
               ),
@@ -65,17 +66,20 @@ class _MainScaffoldState extends State<MainScaffold> {
         // Cập nhật state trong MainBloc
         context.read<MainBloc>().add(UpdateMainState(index));
       },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: theme.textTheme.labelLarge!.copyWith(color: color),
-          ),
-        ],
+      child: SizedBox(
+        width: 95,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: theme.textTheme.labelLarge!.copyWith(color: color),
+            ),
+          ],
+        ),
       ),
     );
   }
