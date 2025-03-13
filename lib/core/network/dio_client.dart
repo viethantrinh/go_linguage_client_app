@@ -7,7 +7,7 @@ class DioClient {
   static final String authorizationHeader = 'Authorization';
 
   DioClient() : _dio = Dio() {
-    _dio.options.baseUrl = ApiConstants.baseUrl;
+    _dio.options.baseUrl = ApiConstants.baseRemoteUrl;
     _dio.options.connectTimeout = Duration(seconds: 30);
     _dio.options.receiveTimeout = Duration(seconds: 30);
   }
@@ -23,7 +23,7 @@ class DioClient {
       if (token != null) {
         _dio.options.headers[authorizationHeader] = 'Bearer $token';
       }
-      
+
       final response = await _dio.get(
         url,
         queryParameters: queryParams,
