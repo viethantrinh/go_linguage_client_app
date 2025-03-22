@@ -12,7 +12,7 @@ class PercentageProgressBar extends StatelessWidget {
     required this.percentage,
     this.height = 5,
     this.backgroundColor = AppColor.line,
-    this.progressColor = AppColor.primary600,
+    this.progressColor = AppColor.primary500,
   });
 
   @override

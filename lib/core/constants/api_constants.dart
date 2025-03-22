@@ -1,7 +1,7 @@
 class ApiConstants {
-
   static const String baseUrl = 'http://10.0.2.2:8080/api';
-  static const String baseRemoteUrl = 'https://go-linguage-server-9ab98bbccd59.herokuapp.com/api';
+  static const String baseRemoteUrl =
+      'https://go-linguage-server-9ab98bbccd59.herokuapp.com/api';
 
   // authentication endpoints
   static const String signIn = '/auth/sign-in';
@@ -16,4 +16,5 @@ class ApiConstants {
       '/payment/create-stripe-subscription';
 
   static const String getHomeData = '/main/home';
+  static const String getLessonData = '/topics/1/lessons/detail';
 }

@@ -6,17 +6,22 @@ import 'package:go_linguage/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/sign_up_option_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/splash_page.dart';
+import 'package:go_linguage/features/lesson/presentation/pages/learn_lesson.dart';
+import 'package:go_linguage/features/lesson/presentation/pages/result.dart';
+import 'package:go_linguage/features/search/presentation/search_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/dialog_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/exam_page.dart';
 import 'package:go_linguage/features/home/presentation/pages/home_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/lesson_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/main_scaffold.dart';
-import 'package:go_linguage/features/main/presentation/pages/subject_page.dart';
+import 'package:go_linguage/features/subject/model/subject_model.dart';
+import 'package:go_linguage/features/subject/presentation/pages/subject_page.dart';
 import 'package:go_linguage/features/payment/presentation/pages/subscription_page.dart';
 import 'package:go_linguage/features/setting/presentation/pages/setting.dart';
 import 'package:go_linguage/features/user_info/presentation/pages/user_information_update.dart';
 import 'package:go_linguage/features/user_info/presentation/pages/user_page.dart';
 import 'package:go_router/go_router.dart';
+import 'package:go_linguage/features/home/data/models/home_model.dart';
 
 class AppRoute {
   static final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -62,8 +67,28 @@ class AppRoute {
         builder: (context, state) => const UserInformationUpdate(),
       ),
       GoRoute(
+        path: AppRoutePath.search,
+        builder: (context, state) {
+          final homeData = state.extra as HomeResponseModel?;
+
+          if (homeData == null) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Không có dữ liệu để hiển thị'),
+              ),
+            );
+          }
+
+          return SearchPage(data: homeData);
+        },
+      ),
+      GoRoute(
         path: AppRoutePath.setting,
         builder: (context, state) => const SettingPage(),
+      ),
+      GoRoute(
+        path: AppRoutePath.completeLesson,
+        builder: (context, state) => const LessonCompletedScreen(),
       ),
       GoRoute(
         path: AppRoutePath.subscription,
@@ -94,6 +119,21 @@ class AppRoute {
       ),
 
       // Subject route as a standalone route
+      GoRoute(
+        path: AppRoutePath.subject,
+        builder: (context, state) {
+          final subjectData = state.extra as SubjectModel?;
+
+          if (subjectData == null) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Không có dữ liệu để hiển thị'),
+              ),
+            );
+          }
+          return SubjectPage(data: subjectData);
+        },
+      ),
       // GoRoute(
       //   path: AppRoutePath.subject,
       //   parentNavigatorKey: _rootNavigatorKey,
@@ -104,15 +144,17 @@ class AppRoute {
       // ),
 
       // // Lesson route as a standalone route
-      // GoRoute(
-      //   path: AppRoutePath.lesson,
-      //   parentNavigatorKey: _rootNavigatorKey,
-      //   builder: (context, state) {
-      //     final subjectId = state.pathParameters['subjectId'] ?? '1';
-      //     final lessonId = state.pathParameters['lessonId'] ?? '1';
-      //     return LessonPage(subjectId: subjectId, lessonId: lessonId);
-      //   },
-      // ),
+      GoRoute(
+        path: AppRoutePath.lesson,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final subjectId = 1;
+          //int.parse(state.pathParameters['subjectId'] ?? "1");
+          final lessonId = 1;
+          //int.parse(state.pathParameters['lessonId'] ?? "1");
+          return LearnLessonScreen(subjectId: subjectId, lessonId: lessonId);
+        },
+      ),
 
       // Main app shell route with nested branches
       StatefulShellRoute.indexedStack(
@@ -128,30 +170,30 @@ class AppRoute {
                 builder: (context, state) => const HomePage(),
                 routes: [
                   // Subject route as a child of home
-                  GoRoute(
-                    path: 'subject/:subjectId',
-                    builder: (context, state) {
-                      final subjectId =
-                          state.pathParameters['subjectId'] ?? '1';
-                      return SubjectPage(subjectId: subjectId);
-                    },
-                    // Lesson route as a child of subject
-                    routes: [
-                      GoRoute(
-                        path: 'lesson/:lessonId',
-                        builder: (context, state) {
-                          final subjectId =
-                              state.pathParameters['subjectId'] ?? '1';
-                          final lessonId =
-                              state.pathParameters['lessonId'] ?? '1';
-                          return LessonPage(
-                            subjectId: subjectId,
-                            lessonId: lessonId,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                  // GoRoute(
+                  //   path: 'subject/:subjectId',
+                  //   builder: (context, state) {
+                  //     final subjectId =
+                  //         state.pathParameters['subjectId'] ?? '1';
+                  //     return SubjectPage(subjectId: subjectId);
+                  //   },
+                  //   // Lesson route as a child of subject
+                  //   routes: [
+                  //     GoRoute(
+                  //       path: 'lesson/:lessonId',
+                  //       builder: (context, state) {
+                  //         final subjectId =
+                  //             state.pathParameters['subjectId'] ?? '1';
+                  //         final lessonId =
+                  //             state.pathParameters['lessonId'] ?? '1';
+                  //         return LessonPage(
+                  //           subjectId: subjectId,
+                  //           lessonId: lessonId,
+                  //         );
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
             ],

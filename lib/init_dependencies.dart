@@ -1,6 +1,8 @@
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_linguage/core/network/dio_client.dart';
+import 'package:go_linguage/core/network/connectivity_service.dart';
+import 'package:go_linguage/core/network/connectivity/connectivity_bloc.dart';
 import 'package:go_linguage/core/secret/app_secret.dart';
 import 'package:go_linguage/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:go_linguage/features/auth/data/datasources/auth_remote_data_source.dart';
@@ -17,6 +19,11 @@ import 'package:go_linguage/features/home/data/repositories/home_repository_impl
 import 'package:go_linguage/features/home/domain/repositories/home_repository.dart';
 import 'package:go_linguage/features/home/domain/usecases/view_usecase.dart';
 import 'package:go_linguage/features/home/presentation/bloc/home_bloc.dart';
+import 'package:go_linguage/features/lesson/data/datasources/lesson_data_source.dart';
+import 'package:go_linguage/features/lesson/data/repositories/lesson_repository_impl.dart';
+import 'package:go_linguage/features/lesson/domain/repositories/home_repository.dart';
+import 'package:go_linguage/features/lesson/domain/usecases/view_usecase.dart';
+import 'package:go_linguage/features/lesson/presentation/bloc/lesson_bloc.dart';
 import 'package:go_linguage/features/main/presentation/bloc/main_bloc.dart';
 import 'package:go_linguage/features/payment/data/datasources/subscription_remote_data_source.dart';
 import 'package:go_linguage/features/payment/data/repositories/subscription_repository_impl.dart';
@@ -24,12 +31,26 @@ import 'package:go_linguage/features/payment/domain/repositories/subscription_re
 import 'package:go_linguage/features/payment/domain/usecases/create_subscription_usecase.dart';
 import 'package:go_linguage/features/payment/domain/usecases/request_payment_usecase.dart';
 import 'package:go_linguage/features/payment/presentation/bloc/subscription_bloc.dart';
+import 'package:go_linguage/features/subject/data/datasources/subject_data_source.dart';
+import 'package:go_linguage/features/subject/data/repositories/subject_repository_impl.dart';
+import 'package:go_linguage/features/subject/domain/repositories/subject_repository.dart';
+import 'package:go_linguage/features/subject/domain/usecases/subject_view_usecase.dart';
+import 'package:go_linguage/features/subject/presentation/bloc/subject_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final serviceLocator = GetIt.I;
 
 Future<void> initializeDependencies() async {
+  // Connectivity
+  serviceLocator.registerLazySingleton<ConnectivityService>(
+    () => ConnectivityServiceImpl(),
+  );
+
+  serviceLocator.registerFactory<ConnectivityBloc>(
+    () => ConnectivityBloc(serviceLocator<ConnectivityService>()),
+  );
+
   // register shared preference
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   serviceLocator.registerSingleton<SharedPreferences>(sharedPreferences);
@@ -58,69 +79,108 @@ Future<void> initializeDependencies() async {
 
 void _initAuthDependencies() {
   serviceLocator
-    ..registerFactory<AuthRemoteDataSource>(
-      () => AuthRemoteDataSourceImpl(
-        dioClient: serviceLocator<DioClient>(),
-        googleSignIn: serviceLocator<GoogleSignIn>(),
-      ),
-    )
-    ..registerFactory<AuthLocalDataSource>(
-      () => AuthLocalDataSourceImpl(
-        sharedPreferences: serviceLocator<SharedPreferences>(),
-      ),
-    )
-    ..registerFactory<AuthRepository>(
-      () => AuthRepositoryImpl(
-        authRemoteDataSource: serviceLocator<AuthRemoteDataSource>(),
-        authLocalDataSource: serviceLocator<AuthLocalDataSource>(),
-      ),
-    )
-    ..registerFactory<SignInUsecase>(
-      () => SignInUsecase(serviceLocator<AuthRepository>()),
-    )
-    ..registerFactory<SignUpUsecase>(
-      () => SignUpUsecase(serviceLocator<AuthRepository>()),
-    )
-    ..registerFactory<GoogleAuthUsecase>(
-      () => GoogleAuthUsecase(serviceLocator<AuthRepository>()),
-    )
-    ..registerFactory<CheckAuthStatusUsecase>(
-      () => CheckAuthStatusUsecase(serviceLocator<AuthRepository>()),
-    )
-    ..registerFactory<SignOutUsecase>(
-      () => SignOutUsecase(serviceLocator<AuthRepository>()),
-    )
-    ..registerLazySingleton<AuthBloc>(
-      () => AuthBloc(
-        serviceLocator<SignInUsecase>(),
-        serviceLocator<SignUpUsecase>(),
-        serviceLocator<CheckAuthStatusUsecase>(),
-        serviceLocator<GoogleAuthUsecase>(),
-        serviceLocator<SignOutUsecase>(),
-      ),
-    )
-    ..registerFactory<HomeRemoteDataSourceImpl>(
-      () => HomeRemoteDataSourceImpl(
-        sharedPreferences: serviceLocator<SharedPreferences>(),
-        dioClient: serviceLocator<DioClient>(),
-      ),
-    )
-    ..registerFactory<HomeRepository>(
-      () => HomeRepositoryImpl(
-        homeRemoteDataSource: serviceLocator<HomeRemoteDataSourceImpl>(),
-      ),
-    )
-    ..registerFactory<ViewUsecase>(
-      () => ViewUsecase(serviceLocator<HomeRepository>()),
-    )
-    ..registerLazySingleton<HomeBloc>(
-      () => HomeBloc(
-        serviceLocator<ViewUsecase>(),
-      ),
-    )
-    ..registerLazySingleton<MainBloc>(
-      () => MainBloc(),
-    );
+        ..registerFactory<AuthRemoteDataSource>(
+          () => AuthRemoteDataSourceImpl(
+            dioClient: serviceLocator<DioClient>(),
+            googleSignIn: serviceLocator<GoogleSignIn>(),
+          ),
+        )
+        ..registerFactory<AuthLocalDataSource>(
+          () => AuthLocalDataSourceImpl(
+            sharedPreferences: serviceLocator<SharedPreferences>(),
+          ),
+        )
+        ..registerFactory<AuthRepository>(
+          () => AuthRepositoryImpl(
+            authRemoteDataSource: serviceLocator<AuthRemoteDataSource>(),
+            authLocalDataSource: serviceLocator<AuthLocalDataSource>(),
+          ),
+        )
+        ..registerFactory<SignInUsecase>(
+          () => SignInUsecase(serviceLocator<AuthRepository>()),
+        )
+        ..registerFactory<SignUpUsecase>(
+          () => SignUpUsecase(serviceLocator<AuthRepository>()),
+        )
+        ..registerFactory<GoogleAuthUsecase>(
+          () => GoogleAuthUsecase(serviceLocator<AuthRepository>()),
+        )
+        ..registerFactory<CheckAuthStatusUsecase>(
+          () => CheckAuthStatusUsecase(serviceLocator<AuthRepository>()),
+        )
+        ..registerFactory<SignOutUsecase>(
+          () => SignOutUsecase(serviceLocator<AuthRepository>()),
+        )
+        ..registerLazySingleton<AuthBloc>(
+          () => AuthBloc(
+            serviceLocator<SignInUsecase>(),
+            serviceLocator<SignUpUsecase>(),
+            serviceLocator<CheckAuthStatusUsecase>(),
+            serviceLocator<GoogleAuthUsecase>(),
+            serviceLocator<SignOutUsecase>(),
+          ),
+        )
+        ..registerFactory<HomeRemoteDataSourceImpl>(
+          () => HomeRemoteDataSourceImpl(
+            sharedPreferences: serviceLocator<SharedPreferences>(),
+            dioClient: serviceLocator<DioClient>(),
+          ),
+        )
+        ..registerFactory<HomeRepository>(
+          () => HomeRepositoryImpl(
+            homeRemoteDataSource: serviceLocator<HomeRemoteDataSourceImpl>(),
+          ),
+        )
+        ..registerFactory<HomeViewUsecase>(
+          () => HomeViewUsecase(serviceLocator<HomeRepository>()),
+        )
+        ..registerLazySingleton<HomeBloc>(
+          () => HomeBloc(
+            serviceLocator<HomeViewUsecase>(),
+          ),
+        )
+        ..registerLazySingleton<MainBloc>(
+          () => MainBloc(),
+        )
+        ..registerFactory<SubjectRemoteDataSourceImpl>(
+          () => SubjectRemoteDataSourceImpl(
+            sharedPreferences: serviceLocator<SharedPreferences>(),
+            dioClient: serviceLocator<DioClient>(),
+          ),
+        )
+        ..registerFactory<SubjectRepository>(
+          () => SubjectRepositoryImpl(
+            subjectRemoteDataSourceImpl:
+                serviceLocator<SubjectRemoteDataSourceImpl>(),
+          ),
+        )
+        ..registerFactory<SubjectViewUsecase>(
+          () => SubjectViewUsecase(serviceLocator<SubjectRepository>()),
+        )
+        ..registerLazySingleton<SubjectBloc>(
+          () => SubjectBloc(serviceLocator<SubjectViewUsecase>()),
+        )
+
+        ///////////////////////___LESSON___///////////////////////
+        ..registerFactory<LessonDataSourceImpl>(
+          () => LessonDataSourceImpl(
+            sharedPreferences: serviceLocator<SharedPreferences>(),
+            dioClient: serviceLocator<DioClient>(),
+          ),
+        )
+        ..registerFactory<LessonRepository>(
+          () => LessonRepositoryImpl(
+            lessonRemoteDataSource: serviceLocator<LessonDataSourceImpl>(),
+          ),
+        )
+        ..registerFactory<LessonViewUsecase>(
+          () => LessonViewUsecase(serviceLocator<LessonRepository>()),
+        )
+        ..registerLazySingleton<LessonBloc>(
+          () => LessonBloc(serviceLocator<LessonViewUsecase>()),
+        )
+      ///////////////////////////////////////////////////
+      ;
 }
 
 void _initSubscriptionDependencies() {

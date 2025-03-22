@@ -8,6 +8,7 @@ import 'package:go_linguage/features/payment/presentation/widgets/subscription_f
 import 'package:go_linguage/features/payment/presentation/widgets/subscription_intro.dart';
 import 'package:go_linguage/features/payment/presentation/widgets/subscription_option.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restart_app/restart_app.dart';
 
 class SubscriptionPage extends StatefulWidget {
   const SubscriptionPage({super.key});
@@ -39,7 +40,8 @@ class _SubsriptionPageState extends State<SubscriptionPage> {
     return BlocConsumer<SubscriptionBloc, SubscriptionState>(
       listener: (context, state) {
         if (state is SubscriptionCreateSuccessState) {
-          context.go(AppRoutePath.home);
+          //context.go(AppRoutePath.home);
+          Restart.restartApp();
         }
       },
       builder: (context, state) {

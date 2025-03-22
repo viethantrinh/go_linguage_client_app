@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_linguage/core/common/widgets/back_button.dart';
+import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
+import 'package:go_linguage/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:go_linguage/features/setting/presentation/pages/notification_page.dart';
 import 'package:go_linguage/features/setting/presentation/widgets/setting_item.dart';
 import 'package:go_linguage/features/setting/presentation/widgets/setting_section.dart';
+import 'package:go_router/go_router.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -67,6 +72,14 @@ class SettingPageState extends State<SettingPage> {
                   SettingItem(
                     title: "Thông báo",
                     leadingIcon: Icons.notifications_outlined,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationPage(),
+                        ),
+                      );
+                    },
                   ),
                   SettingItem(
                     title: "Âm thanh",
@@ -92,11 +105,74 @@ class SettingPageState extends State<SettingPage> {
               ),
               SettingSection(title: "", isGrouped: true, items: [
                 SettingItem(
-                  title: "Thoát",
+                  title: "Đăng xuất",
                   leadingIcon: Icons.logout,
                   showBorder: false,
                   onTap: () {
-                    // Xử lý đăng xuất
+                    // Hiển thị hộp thoại xác nhận
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text('Xác nhận'),
+                        content: Text('Bạn có chắc chắn muốn đăng xuất?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('Hủy'),
+                          ),
+                          BlocBuilder<AuthBloc, AuthState>(
+                            builder: (context, state) {
+                              final isLoading = state is AuthLoading;
+                              return TextButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        Navigator.pop(context);
+                                        context
+                                            .read<AuthBloc>()
+                                            .add(AuthSignOut());
+
+                                        // Hiển thị loading indicator
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (context) =>
+                                              BlocBuilder<AuthBloc, AuthState>(
+                                            builder: (context, state) {
+                                              if (state is AuthSignedOut) {
+                                                // Tự động đóng dialog khi đã đăng xuất
+                                                WidgetsBinding.instance
+                                                    .addPostFrameCallback((_) {
+                                                  context
+                                                      .go(AppRoutePath.onBoard);
+                                                });
+                                              }
+                                              return AlertDialog(
+                                                content: Row(
+                                                  children: [
+                                                    CircularProgressIndicator(),
+                                                    SizedBox(width: 20),
+                                                    Text('Đang đăng xuất...'),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      },
+                                child: isLoading
+                                    ? SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2))
+                                    : Text('Đăng xuất'),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    );
                   },
                 ),
               ]),
