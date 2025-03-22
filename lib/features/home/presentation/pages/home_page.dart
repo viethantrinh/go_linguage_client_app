@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_linguage/core/common/page/loading_page.dart';
 import 'package:go_linguage/core/common/widgets/loading_indicator.dart';
 import 'package:go_linguage/core/common/widgets/progress_bar.dart';
 import 'package:go_linguage/core/route/app_route_path.dart';
@@ -7,6 +8,7 @@ import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/features/home/data/models/home_model.dart';
 import 'package:go_linguage/features/home/presentation/bloc/home_bloc.dart';
 import 'package:go_linguage/features/main/presentation/bloc/main_bloc.dart';
+import 'package:go_linguage/features/subject/model/subject_model.dart';
 import 'package:go_router/go_router.dart';
 
 class HomePage extends StatefulWidget {
@@ -46,6 +48,10 @@ class _HomePageState extends State<HomePage> {
       context.read<MainBloc>().add(UpdateMainState(newIndex));
     }
 
+    void _navigateToSearch(HomeResponseModel homeData) {
+      context.push(AppRoutePath.search, extra: homeData);
+    }
+
     return BlocConsumer<HomeBloc, HomeState>(
       listener: (context, state) {
         if (state is LoadedData) {
@@ -63,7 +69,13 @@ class _HomePageState extends State<HomePage> {
       builder: (context, state) {
         if (state is LoadingData) {
           return const Center(child: LoadingIndicator());
+        } else if (state is LoadedFailure) {
+          return Center(child: Text(state.message));
         }
+
+        // Tạo biến local để lưu trữ dữ liệu, tránh lặp lại biểu thức casting
+        final HomeResponseModel homeData = state.props[0] as HomeResponseModel;
+
         return Scaffold(
           backgroundColor: Colors.grey[200],
           appBar: PreferredSize(
@@ -105,9 +117,7 @@ class _HomePageState extends State<HomePage> {
                             height: 16,
                           ),
                           Text(
-                            (state.props[0] as HomeResponseModel)
-                                .goPoints
-                                .toString(),
+                            homeData.goPoints.toString(),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ],
@@ -119,14 +129,16 @@ class _HomePageState extends State<HomePage> {
                             "assets/icons/user_information/streak.png",
                             height: 15,
                           ),
-                          Text(
-                              (state.props[0] as HomeResponseModel)
-                                  .streakPoints
-                                  .toString(),
+                          Text(homeData.streakPoints.toString(),
                               style: Theme.of(context).textTheme.titleMedium),
                         ],
                       ),
-                      Icon(Icons.search, color: Colors.black),
+                      GestureDetector(
+                        onTap: () {
+                          _navigateToSearch(homeData);
+                        },
+                        child: Icon(Icons.search, color: Colors.black),
+                      ),
                     ],
                   ),
                 ],
@@ -135,8 +147,11 @@ class _HomePageState extends State<HomePage> {
           ),
           body: ListView.builder(
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            itemCount: (state.props[0] as HomeResponseModel).levels.length,
+            itemCount: homeData.levels.length,
             itemBuilder: (context, indexLevel) {
+              // Lấy level hiện tại để code dễ đọc hơn
+              final currentLevel = homeData.levels[indexLevel];
+
               return Column(
                 children: [
                   Padding(
@@ -148,9 +163,7 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          (state.props[0] as HomeResponseModel)
-                              .levels[indexLevel]
-                              .name,
+                          currentLevel.name,
                           style: Theme.of(context).textTheme.labelLarge,
                         ),
                         Text(
@@ -161,36 +174,29 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   PercentageProgressBar(
-                    percentage: (state.props[0] as HomeResponseModel)
-                            .levels[indexLevel]
-                            .totalUserXPPoints /
-                        180,
+                    percentage: currentLevel.totalUserXPPoints / 180,
                   ),
                   SizedBox(height: 10),
                   ...List.generate(
-                    (state.props[0] as HomeResponseModel)
-                        .levels[indexLevel]
-                        .topics
-                        .length,
+                    currentLevel.topics.length,
                     (indexTopic) {
+                      // Lấy topic hiện tại để code dễ đọc hơn
+                      final currentTopic = currentLevel.topics[indexTopic];
+
                       return GestureDetector(
                           onTap: () {
-                            if ((state.props[0] as HomeResponseModel)
-                                .levels[indexLevel]
-                                .topics[indexTopic]
-                                .premium) {
+                            if (currentTopic.premium) {
                               context.push(AppRoutePath.subscription);
                               return;
                             }
-                            context.push(AppRoutePath.lesson);
+                            context.push(AppRoutePath.subject,
+                                extra: SubjectModel(
+                                    id: currentTopic.id,
+                                    title: currentTopic.name,
+                                    progress: currentTopic.totalUserXPPoints));
                           },
                           child: Opacity(
-                            opacity: (state.props[0] as HomeResponseModel)
-                                    .levels[indexLevel]
-                                    .topics[indexTopic]
-                                    .premium
-                                ? 0.5
-                                : 1,
+                            opacity: currentTopic.premium ? 0.5 : 1,
                             child: Container(
                               margin: EdgeInsets.only(bottom: 8.0),
                               padding: EdgeInsets.symmetric(
@@ -211,10 +217,7 @@ class _HomePageState extends State<HomePage> {
                                 spacing: 20,
                                 children: [
                                   Image.network(
-                                    (state.props[0] as HomeResponseModel)
-                                        .levels[indexLevel]
-                                        .topics[indexTopic]
-                                        .imageUrl,
+                                    currentTopic.imageUrl,
                                   ),
                                   const SizedBox(
                                     width: 5,
@@ -229,18 +232,14 @@ class _HomePageState extends State<HomePage> {
                                         Row(
                                           spacing: 5,
                                           children: [
-                                            if ((state.props[0]
-                                                        as HomeResponseModel)
-                                                    .levels[indexLevel]
-                                                    .topics[indexTopic]
-                                                    .totalUserXPPoints >
+                                            if (currentTopic.totalUserXPPoints >
                                                 0) ...[
                                               Image.asset(
                                                 "assets/icons/user_information/proficient.png",
                                                 height: 12,
                                               ),
                                               Text(
-                                                "${(state.props[0] as HomeResponseModel).levels[indexLevel].topics[indexTopic].totalUserXPPoints}/18",
+                                                "${currentTopic.totalUserXPPoints}/18",
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .titleSmall,
@@ -248,38 +247,23 @@ class _HomePageState extends State<HomePage> {
                                             ],
                                           ],
                                         ),
-                                        Text(
-                                            (state.props[0]
-                                                    as HomeResponseModel)
-                                                .levels[indexLevel]
-                                                .topics[indexTopic]
-                                                .name,
+                                        Text(currentTopic.name,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .titleSmall),
-                                        if ((state.props[0]
-                                                    as HomeResponseModel)
-                                                .levels[indexLevel]
-                                                .topics[indexTopic]
-                                                .totalUserXPPoints >
+                                        if (currentTopic.totalUserXPPoints >
                                             0) ...[
                                           SizedBox(height: 10),
                                           PercentageProgressBar(
-                                            percentage: (state.props[0]
-                                                        as HomeResponseModel)
-                                                    .levels[indexLevel]
-                                                    .topics[indexTopic]
-                                                    .totalUserXPPoints /
-                                                18,
+                                            percentage:
+                                                currentTopic.totalUserXPPoints /
+                                                    18,
                                           ),
                                         ],
                                       ],
                                     ),
                                   ),
-                                  if ((state.props[0] as HomeResponseModel)
-                                      .levels[indexLevel]
-                                      .topics[indexTopic]
-                                      .premium)
+                                  if (currentTopic.premium)
                                     Icon(
                                       Icons.lock,
                                       size: 14,

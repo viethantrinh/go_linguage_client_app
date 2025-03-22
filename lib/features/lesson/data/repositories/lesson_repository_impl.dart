@@ -1,0 +1,23 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:go_linguage/core/error/failures.dart';
+import 'package:go_linguage/features/lesson/data/datasources/lesson_data_source.dart';
+import 'package:go_linguage/features/lesson/domain/repositories/home_repository.dart';
+import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
+
+class LessonRepositoryImpl implements LessonRepository {
+  final LessonDataSourceImpl lessonRemoteDataSource;
+
+  LessonRepositoryImpl({
+    required this.lessonRemoteDataSource,
+  });
+
+  @override
+  Future<Either<Failure, LessonModel>> getLessonData(int id) async {
+    try {
+      final response = await lessonRemoteDataSource.getLessonData(id);
+      return Right(response);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+}

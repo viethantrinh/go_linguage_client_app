@@ -15,7 +15,7 @@ class ApiResponseModel<T> {
 
   factory ApiResponseModel.fromJson(
     Map<String, dynamic> json,
-    T Function(Map<String, dynamic>) resultFromJson,
+    T Function(dynamic) resultFromJson,
   ) {
     return ApiResponseModel<T>(
       code: json['code'],

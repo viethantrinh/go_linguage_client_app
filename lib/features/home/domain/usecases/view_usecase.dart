@@ -5,10 +5,10 @@ import 'package:go_linguage/features/auth/domain/repositories/auth_repository.da
 import 'package:go_linguage/features/home/data/models/home_model.dart';
 import 'package:go_linguage/features/home/domain/repositories/home_repository.dart';
 
-class ViewUsecase implements UseCase<void, void> {
+class HomeViewUsecase implements UseCase<void, void> {
   final HomeRepository homeRepository;
 
-  ViewUsecase(this.homeRepository);
+  HomeViewUsecase(this.homeRepository);
   @override
   Future<Either<Failure, HomeResponseModel>> call(void params) async {
     final res = await homeRepository.getHomeData();

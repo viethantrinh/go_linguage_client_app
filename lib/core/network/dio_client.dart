@@ -14,7 +14,7 @@ class DioClient {
 
   Future<ApiResponseModel<T>> get<T>({
     required String url,
-    required T Function(Map<String, dynamic>) resultFromJson,
+    required T Function(dynamic) resultFromJson,
     Map<String, dynamic>? queryParams,
     Options? options,
     String? token,
@@ -41,7 +41,7 @@ class DioClient {
 
   Future<ApiResponseModel<T>> post<T>({
     required String url,
-    required T Function(Map<String, dynamic>) resultFromJson,
+    required T Function(dynamic) resultFromJson,
     required dynamic jsonBody,
     Map<String, dynamic>? queryParams,
     Options? options,

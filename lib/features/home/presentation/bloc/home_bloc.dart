@@ -8,8 +8,8 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<ViewEvent, HomeState> {
-  final ViewUsecase _viewUsecase;
-  HomeBloc(ViewUsecase viewUsecase)
+  final HomeViewUsecase _viewUsecase;
+  HomeBloc(HomeViewUsecase viewUsecase)
       : _viewUsecase = viewUsecase,
         super(LoadingData()) {
     on<ViewData>(_loadData);
