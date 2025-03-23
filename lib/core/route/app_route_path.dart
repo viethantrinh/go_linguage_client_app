@@ -17,7 +17,7 @@ class AppRoutePath {
   static const String userInformationUpdate = '/user/update';
   static const String setting = '/setting';
   static const String search = '/search';
-  static const String completeLesson = '/complete-lesson';
+  static const String completeLesson = '/complete-lesson/:score';
   // Standalone routes without bottom navigation
   // static const String subject = '/subject/:subjectId';
   // static const String lesson = '/subject/:subjectId/lesson/:lessonId';

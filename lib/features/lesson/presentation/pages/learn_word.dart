@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:go_linguage/core/common/widgets/cache_audio_player.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
-import 'package:just_audio/just_audio.dart';
 
 class LearnWordScreen extends StatefulWidget {
-  final void Function(bool) onLessonCompleted;
+  final void Function(bool, bool, String) onLessonCompleted;
   final Exercise exercise;
 
-  const LearnWordScreen(
-      {super.key, required this.onLessonCompleted, required this.exercise});
+  const LearnWordScreen({
+    super.key,
+    required this.onLessonCompleted,
+    required this.exercise,
+  });
 
   @override
   State<LearnWordScreen> createState() => _LearnWordScreenState();
@@ -20,21 +22,8 @@ class _LearnWordScreenState extends State<LearnWordScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      widget.onLessonCompleted(true);
+      widget.onLessonCompleted(true, true, "");
     });
-  }
-
-  Future<void> _playAudio(String url) async {
-    final player = AudioPlayer(); // Create a player
-    final duration = await player.setUrl(// Load a URL
-        url); // Schemes: (https: | file: | asset: )
-    player.play(); // Play without waiting for completion
-    // await player.play(); // Play while waiting for completion
-    // await player.pause(); // Pause but remain ready to play
-    // await player.seek(Duration(seconds: 10)); // Jump to the 10 second position
-    // await player.setSpeed(2.0); // Twice as fast
-    // await player.setVolume(0.5); // Half as loud
-    // await player.stop();
   }
 
   @override
