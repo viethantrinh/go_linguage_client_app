@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_router/go_router.dart';
 
@@ -34,9 +33,10 @@ class LessonCompletedScreen extends StatelessWidget {
               ),
             ),
 
-            Icon(
-              Icons.circle,
-              size: 200,
+            Image.asset(
+              'assets/icons/lessons/result.png',
+              width: 300,
+              height: 300,
             ),
 
             // Points earned

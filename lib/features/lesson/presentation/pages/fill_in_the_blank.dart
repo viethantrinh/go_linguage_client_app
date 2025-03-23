@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_linguage/core/common/widgets/cache_audio_player.dart';
-import 'package:go_linguage/core/common/widgets/progress_bar.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 
+class Word {
+  final String text;
+  final bool isDistractor;
+  final int correctPosition;
+
+  Word(
+      {required this.text,
+      required this.isDistractor,
+      required this.correctPosition});
+}
+
 class FillInTheBlankScreen extends StatefulWidget {
-  final void Function(bool)? onLessonCompleted;
+  final void Function(bool, bool, String)? onLessonCompleted;
   final Exercise exercise;
   const FillInTheBlankScreen(
       {super.key, this.onLessonCompleted, required this.exercise});
@@ -14,39 +24,54 @@ class FillInTheBlankScreen extends StatefulWidget {
 }
 
 class _FillInTheBlankScreenState extends State<FillInTheBlankScreen> {
-  final List<String> wordOptions = [
-    'phụ',
-    'tôi',
-    'là',
-    'nhật',
-    'trung',
-    'một',
-    'quốc',
-    'người',
-    'nữ',
-    'mỹ',
-    'tiếng'
-  ];
-
+  final List<Word> words = [];
   final List<String> selectedWords = [];
-  final int maxSelectedWords = 5; // Maximum number of words in the answer
 
-  // Câu trả lời đúng (thứ tự các từ)
-  final List<String> correctAnswer = ['tôi', 'là', 'một', 'người', 'phụ', 'nữ'];
+  // This will be dynamically set based on exercise data
+  late int maxSelectedWords;
+
+  // This will store the correct answer based on correctPosition
+  late List<String> correctAnswer;
 
   // Kiểm tra câu trả lời
   void _checkAnswer() {
     // Chỉ kiểm tra khi đã chọn đủ số từ
-    if (selectedWords.length >= 5) {
-      // Thực tế cần kiểm tra câu trả lời đúng một cách cụ thể hơn
-      // Đây chỉ là mô phỏng
+    if (selectedWords.length == maxSelectedWords) {
+      // Kiểm tra thứ tự các từ có đúng không
       bool isCorrect = true;
+
+      // Tạo một map từ correctPosition --> text của từ không phải distractor
+      Map<int, String> positionToWordMap = {};
+      for (var word in words) {
+        if (!word.isDistractor) {
+          positionToWordMap[word.correctPosition] = word.text;
+        }
+      }
+
+      // Tạo câu trả lời đúng từ positionToWordMap
+      List<String> expectedOrder = [];
+      for (int i = 0; i < maxSelectedWords; i++) {
+        expectedOrder.add(positionToWordMap[i] ?? "");
+      }
+
+      // So sánh các từ đã chọn với thứ tự đúng
+      for (int i = 0; i < selectedWords.length; i++) {
+        if (i >= expectedOrder.length || selectedWords[i] != expectedOrder[i]) {
+          isCorrect = false;
+          break;
+        }
+      }
 
       // Thông báo hoàn thành nếu có callback
       if (widget.onLessonCompleted != null) {
         // Đợi một chút để hiển thị hiệu ứng
         Future.delayed(const Duration(milliseconds: 500), () {
-          widget.onLessonCompleted!(isCorrect);
+          String cras = "";
+          for (var i = 0; i < correctAnswer.length; i++) {
+            cras += correctAnswer[i];
+            cras += " ";
+          }
+          widget.onLessonCompleted!(true, isCorrect, cras);
         });
       }
     }
@@ -67,7 +92,32 @@ class _FillInTheBlankScreenState extends State<FillInTheBlankScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    // Tạo danh sách words từ dữ liệu API
+    for (final word in widget.exercise.data["words"]) {
+      words.add(Word(
+          text: word["text"],
+          isDistractor: word["isDistractor"],
+          correctPosition: word["correctPosition"]));
+    }
+
+    // Tính số lượng từ cần chọn (số từ không phải distractor)
+    maxSelectedWords = words.where((word) => !word.isDistractor).length;
+
+    // Tạo câu trả lời đúng dựa trên correctPosition
+    correctAnswer = List.filled(maxSelectedWords, "");
+    for (var word in words) {
+      if (!word.isDistractor && word.correctPosition < maxSelectedWords) {
+        correctAnswer[word.correctPosition] = word.text;
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    //widget.onLessonCompleted!(true, true, "VPI");
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -98,7 +148,9 @@ class _FillInTheBlankScreenState extends State<FillInTheBlankScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.exercise.data["sentence"]["englishText"] ?? "ERROR",
+                    widget.exercise.data["sourceLanguage"] == "english"
+                        ? widget.exercise.data["sentence"]["englishText"]
+                        : widget.exercise.data["sentence"]["vietnameseText"],
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w500,
@@ -227,11 +279,11 @@ class _FillInTheBlankScreenState extends State<FillInTheBlankScreen> {
             child: Wrap(
               spacing: 8,
               runSpacing: 10,
-              children: wordOptions.map((word) {
-                final isSelected = selectedWords.contains(word);
+              children: words.map((word) {
+                final isSelected = selectedWords.contains(word.text);
                 return GestureDetector(
                   onTap: () {
-                    _selectWord(word);
+                    _selectWord(word.text);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -247,7 +299,7 @@ class _FillInTheBlankScreenState extends State<FillInTheBlankScreen> {
                       ),
                     ),
                     child: Text(
-                      word,
+                      word.text,
                       style: TextStyle(
                         fontSize: 18,
                         color: isSelected ? Colors.grey : Colors.black87,

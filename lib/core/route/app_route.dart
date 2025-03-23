@@ -88,7 +88,10 @@ class AppRoute {
       ),
       GoRoute(
         path: AppRoutePath.completeLesson,
-        builder: (context, state) => const LessonCompletedScreen(),
+        builder: (context, state) {
+          final score = state.pathParameters['score'] ?? '0';
+          return LessonCompletedScreen(points: int.parse(score));
+        },
       ),
       GoRoute(
         path: AppRoutePath.subscription,

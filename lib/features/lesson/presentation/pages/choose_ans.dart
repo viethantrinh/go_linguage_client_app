@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_linguage/core/common/widgets/cache_audio_player.dart';
-import 'package:go_linguage/core/common/widgets/progress_bar.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 
 class ChooseAnswerScreen extends StatefulWidget {
-  final void Function(bool)? onLessonCompleted;
+  final void Function(bool, bool, String)? onLessonCompleted;
   final Exercise exercise;
 
   const ChooseAnswerScreen(
@@ -18,6 +17,7 @@ class _ChooseAnswerScreenState extends State<ChooseAnswerScreen> {
   int? selectedAnswerIndex;
   final List<String> options = [];
   final List<bool> revealedAnswers = [];
+  String correctAnswer = "";
 
   void _selectAnswer(int index) {
     setState(() {
@@ -29,7 +29,8 @@ class _ChooseAnswerScreenState extends State<ChooseAnswerScreen> {
 
     // Thông báo hoàn thành sau khi chọn đáp án
     if (widget.onLessonCompleted != null) {
-      widget.onLessonCompleted!(true);
+      widget.onLessonCompleted!(true,
+          widget.exercise.data["options"][index]["isCorrect"], correctAnswer);
     }
   }
 
@@ -38,8 +39,17 @@ class _ChooseAnswerScreenState extends State<ChooseAnswerScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       for (var option in widget.exercise.data["options"]) {
-        options.add(option["englishText"]);
+        options.add(
+          widget.exercise.data["sourceLanguage"] == "english"
+              ? option["englishText"]
+              : option["vietnameseText"],
+        );
         revealedAnswers.add(false);
+        if (option["isCorrect"] == true) {
+          correctAnswer = widget.exercise.data["sourceLanguage"] == "english"
+              ? option["englishText"]
+              : option["vietnameseText"];
+        }
       }
       setState(() {});
     });
@@ -63,40 +73,62 @@ class _ChooseAnswerScreenState extends State<ChooseAnswerScreen> {
           ),
 
           // Word with sound button
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300, width: 1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.exercise.data["question"]["vietnameseText"],
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                  Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border:
-                            Border.all(color: Colors.grey.shade300, width: 1),
+          if (widget.exercise.data["questionType"] == "word" ||
+              widget.exercise.data["questionType"] == "sentence")
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300, width: 1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.exercise.data["targetLanguage"] == "english"
+                            ? widget.exercise.data["question"]["englishText"]
+                            : widget.exercise.data["question"]
+                                ["vietnameseText"],
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      child: CacheAudioPlayer(
+                    ),
+                    CacheAudioPlayer(
                         url: widget.exercise.data["question"]["audioUrl"],
-                        child:
-                            const Icon(Icons.volume_up, color: Colors.black54),
-                      )),
-                ],
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                                color: Colors.grey.shade300, width: 1),
+                          ),
+                          child: const Icon(Icons.volume_up,
+                              color: Colors.black54),
+                        ))
+                  ],
+                ),
               ),
             ),
-          ),
+          if (widget.exercise.data["questionType"] == "audio")
+            Center(
+              child: CacheAudioPlayer(
+                  url: widget.exercise.data["question"]["audioUrl"],
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    width: 66,
+                    height: 66,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade300, width: 1),
+                    ),
+                    child: const Icon(Icons.volume_up, color: Colors.black54),
+                  )),
+            ),
 
           const SizedBox(height: 10),
 
@@ -137,26 +169,22 @@ class _ChooseAnswerScreenState extends State<ChooseAnswerScreen> {
                                 height: 60,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Icon(
-                                    Icons.image,
-                                    size: 60,
-                                    color: Colors.blue.shade400,
-                                  );
+                                  return Container();
                                 },
                               )
-                            : Icon(
-                                Icons.help,
-                                size: 60,
-                                color: Colors.blue.shade400,
-                              ),
+                            : widget.exercise.data["options"][index]
+                                        ["imageUrl"] !=
+                                    null
+                                ? Icon(
+                                    Icons.help,
+                                    size: 60,
+                                    color: Colors.blue.shade400,
+                                  )
+                                : Container(),
                         const SizedBox(height: 10),
                         Text(
                           options[index],
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ],
                     ),

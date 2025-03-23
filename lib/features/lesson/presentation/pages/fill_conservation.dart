@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_linguage/core/common/widgets/cache_audio_player.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
+import 'dart:convert';
+import 'package:just_audio/just_audio.dart';
+import 'dart:async';
 
 class FillConversationScreen extends StatefulWidget {
-  final void Function(bool)? onLessonCompleted;
+  final void Function(bool, bool, String)? onLessonCompleted;
   final Exercise exercise;
   const FillConversationScreen(
       {super.key, this.onLessonCompleted, required this.exercise});
@@ -11,59 +15,72 @@ class FillConversationScreen extends StatefulWidget {
   State<FillConversationScreen> createState() => _FillConversationScreenState();
 }
 
+// To parse this JSON data, do
+//
+//     final chatModel = chatModelFromJson(jsonString);
+
+ChatModel chatModelFromJson(String str) => ChatModel.fromJson(json.decode(str));
+
+String chatModelToJson(ChatModel data) => json.encode(data.toJson());
+
+class ChatModel {
+  bool isChangeSpeaker;
+  String englishText;
+  String vietnameseText;
+  String audioUrl;
+  int displayOrder;
+  String? blankWord;
+
+  ChatModel({
+    required this.isChangeSpeaker,
+    required this.englishText,
+    required this.vietnameseText,
+    required this.audioUrl,
+    required this.displayOrder,
+    required this.blankWord,
+  });
+
+  factory ChatModel.fromJson(Map<String, dynamic> json) => ChatModel(
+        isChangeSpeaker: json["isChangeSpeaker"],
+        englishText: json["englishText"],
+        vietnameseText: json["vietnameseText"],
+        audioUrl: json["audioUrl"],
+        displayOrder: json["displayOrder"],
+        blankWord: json["blankWord"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "isChangeSpeaker": isChangeSpeaker,
+        "englishText": englishText,
+        "vietnameseText": vietnameseText,
+        "audioUrl": audioUrl,
+        "displayOrder": displayOrder,
+        "blankWord": blankWord,
+      };
+
+  // Helper property to check if this message has a blank
+  bool get hasBlank => englishText.contains("[]") && blankWord != null;
+}
+
 class _FillConversationScreenState extends State<FillConversationScreen> {
-  final List<String> wordOptions = ['See', 'are', 'am'];
+  final List<String> wordOptions = [];
+  List<ChatModel> chatModel = [];
 
   // Track selected words for each blank
   Map<int, String> selectedWords = {};
 
-  // Define the conversation messages
-  final List<ConversationMessage> conversation = [
-    ConversationMessage(
-      text: 'Good afternoon!',
-      sender: MessageSender.monkey,
-      hasAudio: true,
-      isBlank: false,
-    ),
-    ConversationMessage(
-      text: 'Good afternoon!',
-      sender: MessageSender.earth,
-      hasAudio: true,
-      isBlank: false,
-    ),
-    ConversationMessage(
-      text: 'How ___ you?',
-      sender: MessageSender.monkey,
-      hasAudio: true,
-      isBlank: true,
-      blankWord: 'are',
-      blankIndex: 0,
-    ),
-    ConversationMessage(
-      text: 'I\'m fine.',
-      sender: MessageSender.earth,
-      hasAudio: true,
-      isBlank: false,
-    ),
-    ConversationMessage(
-      text: 'And you?',
-      sender: MessageSender.earth,
-      hasAudio: true,
-      isBlank: false,
-    ),
-    ConversationMessage(
-      text: 'I ___ fine.',
-      sender: MessageSender.monkey,
-      hasAudio: true,
-      isBlank: true,
-      blankWord: 'am',
-      blankIndex: 1,
-    ),
-  ];
+  // For controlling conversation bubble display
+  bool _showingConversation = true;
+  int _visibleMessagesCount = 0;
+  bool _isPlayingAudio = false;
+  bool _conversationCompleted = false;
+
+  // ScrollController for auto-scrolling
+  final ScrollController _scrollController = ScrollController();
 
   // Tìm các tin nhắn có ô trống
-  List<ConversationMessage> get _blankMessages =>
-      conversation.where((message) => message.isBlank).toList();
+  List<ChatModel> get _blankMessages =>
+      chatModel.where((message) => message.hasBlank).toList();
 
   // Kiểm tra nếu tất cả các ô trống đã được điền và đúng
   bool get _allBlanksFilledCorrectly {
@@ -71,9 +88,10 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
       return false;
     }
 
-    for (var message in _blankMessages) {
-      if (!selectedWords.containsKey(message.blankIndex) ||
-          selectedWords[message.blankIndex] != message.blankWord) {
+    for (int i = 0; i < _blankMessages.length; i++) {
+      var message = _blankMessages[i];
+      if (!selectedWords.containsKey(i) ||
+          selectedWords[i] != message.blankWord) {
         return false;
       }
     }
@@ -89,14 +107,202 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
     setState(() {
       selectedWords[blankIndex] = word;
     });
+
+    // Kiểm tra nếu hoàn thành
+    if (_allBlanksFilled) {
+      // Thông báo hoàn thành với tham số phù hợp
+      if (widget.onLessonCompleted != null) {
+        Future.delayed(const Duration(milliseconds: 1), () {
+          // Tham số thứ nhất: đã hoàn thành
+          // Tham số thứ hai: true nếu đúng tất cả, false nếu có ít nhất một câu sai
+          // Tham số thứ ba: thông báo
+          widget.onLessonCompleted!(true, _allBlanksFilledCorrectly,
+              _allBlanksFilledCorrectly ? "COMPLETE" : "INCORRECT");
+        });
+      }
+    } else {
+      widget.onLessonCompleted!(false, false, "");
+    }
+  }
+
+  // Display next message bubble and play its audio
+  void _showNextMessage() async {
+    if (_visibleMessagesCount < chatModel.length) {
+      setState(() {
+        _isPlayingAudio = true;
+        _visibleMessagesCount++;
+      });
+
+      // Scroll to bottom after state update has been applied
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+
+      // Get the current message to play its audio
+      final currentMessage = chatModel[_visibleMessagesCount - 1];
+
+      // Wait for audio to complete before showing next message
+      if (currentMessage.audioUrl.isNotEmpty) {
+        await _playMessageAudio(currentMessage);
+      } else {
+        // If no audio, just wait a short time
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
+      setState(() {
+        _isPlayingAudio = false;
+      });
+
+      // If there are more messages, continue the sequence after a short pause
+      if (_visibleMessagesCount < chatModel.length) {
+        Future.delayed(const Duration(milliseconds: 800), () {
+          if (mounted) {
+            _showNextMessage();
+          }
+        });
+      }
+      // If this was the last message, mark as completed but stay in conversation mode
+      else if (_visibleMessagesCount == chatModel.length) {
+        setState(() {
+          _conversationCompleted = true;
+        });
+
+        // Scroll to show the buttons after the state update
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
+    }
+  }
+
+  // Restart the conversation playback
+  void _replayConversation() {
+    setState(() {
+      _visibleMessagesCount = 0;
+      _conversationCompleted = false;
+      _isPlayingAudio = false;
+    });
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _showNextMessage();
+      }
+    });
+  }
+
+  // Switch to fill-in-the-blank mode
+  void _startFillInTheBlank() {
+    setState(() {
+      _showingConversation = false;
+    });
+  }
+
+  // Play message audio and wait for completion
+  Future<void> _playMessageAudio(ChatModel message) async {
+    if (message.audioUrl.isEmpty) return;
+
+    // Create a player instance
+    final AudioPlayer player = AudioPlayer();
+    final completer = Completer<void>();
+
+    try {
+      // Get cached file
+      final audioFile =
+          await AudioCacheManager().getAudioFile(message.audioUrl);
+
+      // Set up player completion listener
+      player.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          player.dispose();
+          if (!completer.isCompleted) {
+            completer.complete();
+          }
+        }
+      });
+
+      // Handle errors
+      player.playbackEventStream.listen((event) {},
+          onError: (Object e, StackTrace st) {
+        if (!completer.isCompleted) {
+          completer.complete(); // Complete anyway to not block the UI
+        }
+      });
+
+      // Play the audio
+      await player.setFilePath(audioFile.path);
+      await player.play();
+
+      // Return a future that completes when the audio completes
+      return completer.future;
+    } catch (e) {
+      print('Error playing message audio: $e');
+      player.dispose();
+      if (!completer.isCompleted) {
+        completer.complete(); // Complete anyway to continue the flow
+      }
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      widget.onLessonCompleted!(true);
+
+    // Load data from exercise
+    for (var i = 0;
+        i < widget.exercise.data["dialogueExerciseLines"].length;
+        i++) {
+      chatModel.add(ChatModel(
+        isChangeSpeaker: widget.exercise.data["dialogueExerciseLines"][i]
+            ["isChangeSpeaker"],
+        englishText: widget.exercise.data["dialogueExerciseLines"][i]
+            ["englishText"],
+        vietnameseText: widget.exercise.data["dialogueExerciseLines"][i]
+            ["vietnameseText"],
+        audioUrl:
+            widget.exercise.data["dialogueExerciseLines"][i]["audioUrl"] ?? "",
+        displayOrder: widget.exercise.data["dialogueExerciseLines"][i]
+            ["displayOrder"],
+        blankWord:
+            widget.exercise.data["dialogueExerciseLines"][i]["blankWord"] ?? "",
+      ));
+
+      if (widget.exercise.data["dialogueExerciseLines"][i]["blankWord"] !=
+              null &&
+          widget.exercise.data["dialogueExerciseLines"][i]["blankWord"]
+              .toString()
+              .isNotEmpty) {
+        wordOptions
+            .add(widget.exercise.data["dialogueExerciseLines"][i]["blankWord"]);
+      }
+    }
+
+    // Sort the chat model by display order
+    chatModel.sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+
+    // Start showing conversation after a short delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _showNextMessage();
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -111,7 +317,9 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
             Padding(
               padding: const EdgeInsets.all(20),
               child: Text(
-                'Điền vào chỗ trống',
+                _showingConversation
+                    ? "Lắng nghe đoạn hội thoại sau"
+                    : (widget.exercise.instruction ?? "ERROR"),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
@@ -119,77 +327,157 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
             // Conversation
             Expanded(
               child: ListView.builder(
+                controller: _scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: conversation.length,
+                itemCount: _showingConversation
+                    ? (_visibleMessagesCount +
+                        (_conversationCompleted || _visibleMessagesCount == 0
+                            ? 1
+                            : 0))
+                    : chatModel.length,
                 itemBuilder: (context, index) {
-                  final message = conversation[index];
-                  return _buildMessageItem(message);
+                  // Show button at the end in conversation mode
+                  if (_showingConversation && index == _visibleMessagesCount) {
+                    // This is the last item - show buttons
+                    return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 4),
+                        child: _conversationCompleted
+                            ? // Show both buttons when conversation is complete
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Replay button
+                                  Container(
+                                    width: 64,
+                                    height: 64,
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 12),
+                                    child: ElevatedButton(
+                                      onPressed: _replayConversation,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: CircleBorder(
+                                          side: BorderSide(
+                                            color: Colors.blue,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.all(0),
+                                      ),
+                                      child: const Icon(
+                                        Icons.replay,
+                                        color: Colors.blue,
+                                        size: 30,
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Start exercise button
+                                  Container(
+                                    width: 64,
+                                    height: 64,
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 12),
+                                    child: ElevatedButton(
+                                      onPressed: _startFillInTheBlank,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: CircleBorder(
+                                          side: BorderSide(
+                                            color: Colors.blue,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.all(0),
+                                      ),
+                                      child: const Icon(
+                                        Icons.edit,
+                                        color: Colors.blue,
+                                        size: 30,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : // Skip button during playback
+                            Container());
+                  }
+
+                  final message = chatModel[index];
+
+                  // In conversation mode, show original text without blanks
+                  // In fill-in-the-blank mode, show text with blanks
+                  return _buildMessageItem(
+                    message,
+                    index,
+                    message.isChangeSpeaker,
+                    showBlank: !_showingConversation,
+                    isLastVisible:
+                        index == _visibleMessagesCount - 1 && _isPlayingAudio,
+                  );
                 },
               ),
             ),
 
-            // Word options
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                    offset: const Offset(0, -1),
-                  ),
-                ],
-              ),
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: wordOptions.map((word) {
-                  final bool isUsed = selectedWords.values.contains(word);
+            // Word options - only show in fill-in-the-blank mode
+            if (!_showingConversation)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: wordOptions.map((word) {
+                    final bool isUsed = selectedWords.values.contains(word);
 
-                  return GestureDetector(
-                    onTap: isUsed
-                        ? null
-                        : () {
-                            // Find the first unfilled blank
-                            for (var message in _blankMessages) {
-                              if (!selectedWords
-                                  .containsKey(message.blankIndex)) {
-                                _selectWord(word, message.blankIndex);
-                                break;
+                    return GestureDetector(
+                      onTap: isUsed
+                          ? null
+                          : () {
+                              // Find the first unfilled blank
+                              for (int i = 0; i < _blankMessages.length; i++) {
+                                if (!selectedWords.containsKey(i)) {
+                                  _selectWord(word, i);
+                                  break;
+                                }
                               }
-                            }
-                          },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            isUsed ? Colors.grey.shade200 : Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
+                            },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
                           color: isUsed
-                              ? Colors.grey.shade300
-                              : Colors.blue.shade200,
-                          width: 1,
+                              ? Colors.grey.shade200
+                              : Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isUsed
+                                ? Colors.grey.shade300
+                                : Colors.blue.shade200,
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          word,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: isUsed ? Colors.grey : Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        word,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: isUsed ? Colors.grey : Colors.black87,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -197,18 +485,17 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
   }
 
   // Build a message item
-  Widget _buildMessageItem(ConversationMessage message) {
-    final bool isMonkey = message.sender == MessageSender.monkey;
-
+  Widget _buildMessageItem(ChatModel message, int index, bool isFirstSpeaker,
+      {bool showBlank = false, bool isLastVisible = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment:
-            isMonkey ? MainAxisAlignment.start : MainAxisAlignment.end,
+            isFirstSpeaker ? MainAxisAlignment.start : MainAxisAlignment.end,
         children: [
-          // Avatar for monkey (left side only)
-          if (isMonkey)
+          // Avatar for first speaker (left side only)
+          if (isFirstSpeaker)
             CircleAvatar(
               radius: 20,
               backgroundColor: Colors.orange.shade100,
@@ -218,7 +505,7 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
               ),
             ),
 
-          if (isMonkey) const SizedBox(width: 12),
+          if (isFirstSpeaker) const SizedBox(width: 12),
 
           // Message bubble
           Container(
@@ -230,43 +517,80 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
               vertical: 10,
             ),
             decoration: BoxDecoration(
-              color: isMonkey ? Colors.orange.shade50 : Colors.green.shade50,
+              color:
+                  isFirstSpeaker ? Colors.orange.shade50 : Colors.green.shade50,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Audio player on the left for second speaker
+                if (!isFirstSpeaker && message.audioUrl.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: isLastVisible && !isFirstSpeaker
+                        ? SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
+                          )
+                        : CacheAudioPlayer(
+                            url: message.audioUrl,
+                            autoPlay:
+                                false, // We handle auto-play separately in _showNextMessage
+                            child: const Icon(Icons.volume_up, size: 18),
+                          ),
+                  ),
+
                 // Message text
-                if (message.isBlank)
-                  _buildMessageWithBlank(message)
+                if (showBlank && message.hasBlank)
+                  Flexible(child: _buildMessageWithBlank(message))
                 else
-                  Text(
-                    message.text,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black87,
+                  Flexible(
+                    child: Text(
+                      message.englishText
+                          .replaceAll("[]", message.blankWord ?? ""),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
 
-                if (message.hasAudio)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.volume_up, size: 18),
-                      color: Colors.grey,
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
-                      onPressed: () {},
-                    ),
+                // Audio player on the right for first speaker
+                if (isFirstSpeaker && message.audioUrl.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: isLastVisible && isFirstSpeaker
+                        ? SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
+                          )
+                        : CacheAudioPlayer(
+                            url: message.audioUrl,
+                            autoPlay:
+                                false, // We handle auto-play separately in _showNextMessage
+                            child: const Icon(Icons.volume_up, size: 18),
+                          ),
                   ),
               ],
             ),
           ),
 
-          if (!isMonkey) const SizedBox(width: 12),
+          if (!isFirstSpeaker) const SizedBox(width: 12),
 
-          // Avatar for earth (right side only)
-          if (!isMonkey)
+          // Avatar for second speaker (right side only)
+          if (!isFirstSpeaker)
             CircleAvatar(
               radius: 20,
               backgroundColor: Colors.green.shade100,
@@ -281,10 +605,16 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
   }
 
   // Build message with blank
-  Widget _buildMessageWithBlank(ConversationMessage message) {
-    List<String> parts = message.text.split('___');
+  Widget _buildMessageWithBlank(ChatModel message) {
+    // Find the index of this message in the blank messages list
+    int blankIndex = _blankMessages.indexOf(message);
+
+    // Replace blank marker [] with ___
+    String textWithBlank = message.englishText.replaceAll("[]", "___");
+    List<String> parts = textWithBlank.split('___');
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           parts[0],
@@ -295,12 +625,13 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
         ),
 
         // Blank
-        if (selectedWords.containsKey(message.blankIndex))
+        if (selectedWords.containsKey(blankIndex))
           // Filled blank
           GestureDetector(
             onTap: () {
               setState(() {
-                selectedWords.remove(message.blankIndex);
+                selectedWords.remove(blankIndex);
+                widget.onLessonCompleted!(false, false, "");
               });
             },
             child: Container(
@@ -314,7 +645,7 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                selectedWords[message.blankIndex]!,
+                selectedWords[blankIndex]!,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
@@ -339,38 +670,15 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
             ),
           ),
 
-        Text(
-          parts[1],
-          style: const TextStyle(
-            fontSize: 18,
-            color: Colors.black87,
+        if (parts.length > 1)
+          Text(
+            parts[1],
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.black87,
+            ),
           ),
-        ),
       ],
     );
   }
-}
-
-// Message data model
-class ConversationMessage {
-  final String text;
-  final MessageSender sender;
-  final bool hasAudio;
-  final bool isBlank;
-  final String? blankWord;
-  final int blankIndex;
-
-  ConversationMessage({
-    required this.text,
-    required this.sender,
-    required this.hasAudio,
-    required this.isBlank,
-    this.blankWord,
-    this.blankIndex = -1,
-  });
-}
-
-enum MessageSender {
-  monkey,
-  earth,
 }

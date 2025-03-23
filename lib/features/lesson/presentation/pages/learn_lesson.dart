@@ -30,12 +30,25 @@ class LearnLessonScreen extends StatefulWidget {
 class _LearnLessonScreenState extends State<LearnLessonScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  int _totalScore = 0;
 
   bool _canProceed = false;
 
-  void _handleLessonCompleted(bool isCompleted) {
-    Future.delayed(const Duration(seconds: 1), () {
+  bool _isCorrect = false;
+  String _correctAnswer = "";
+
+  void _handleLessonCompleted(
+    bool isCompleted,
+    bool isAcepted,
+    String correctAnswer,
+  ) {
+    Future.delayed(const Duration(milliseconds: 300), () {
       setState(() {
+        _correctAnswer = correctAnswer;
+        _isCorrect = isAcepted;
+        if (isAcepted) {
+          _totalScore++;
+        }
         _canProceed = isCompleted;
       });
     });
@@ -45,8 +58,6 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      //await Future.delayed(Duration(seconds: 1));
-      // ignore: use_build_context_synchronously
       context.read<LessonBloc>().add(ViewData(widget.lessonId));
     });
   }
@@ -69,7 +80,7 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      context.pushReplacement(AppRoutePath.completeLesson);
+      context.pushReplacement('/complete-lesson/$_totalScore');
     }
   }
 
@@ -185,6 +196,7 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 24),
             ],
           ),
@@ -194,6 +206,118 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
 
     // Nếu người dùng nhấn Thoát hoặc result là null (nhấn ra ngoài), trả về true để thoát
     return result ?? false;
+  }
+
+  // Show a bottom sheet with the answer feedback
+  Future<void> _showCorrectAnswer(
+      BuildContext context, String correctAnswer, LessonModel lessonData,
+      {bool isCorrect = false}) async {
+    // Show modal bottom sheet with barrier that prevents closing by tapping outside
+    await showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          // Prevent back button from closing the sheet
+          onWillPop: () async => false,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: isCorrect ? Colors.green : Colors.red,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Icon(
+                        isCorrect ? Icons.check : Icons.close,
+                        color: Colors.white,
+                        size: 12,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isCorrect ? "Chính xác" : "Không đúng",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: isCorrect ? Colors.green : Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+                if (!isCorrect) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    "Câu trả lời chính xác:",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    correctAnswer,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _nextPage(lessonData);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          isCorrect ? Colors.green : AppColor.critical,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Tiếp tục',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -235,19 +359,7 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
                           icon: Icons.close,
                           onPressed: _showExitConfirmation,
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.star_border,
-                                color: Colors.grey.shade200, size: 28),
-                            const SizedBox(width: 12),
-                            Icon(Icons.star_border,
-                                color: Colors.grey.shade200, size: 28),
-                            const SizedBox(width: 12),
-                            Icon(Icons.star_border,
-                                color: Colors.grey.shade200, size: 28),
-                          ],
-                        ),
+                        _buildStar(_totalScore, lessonData.exercises.length),
                         IconButton(
                           icon: const Icon(Icons.settings,
                               color: Colors.black54, size: 24),
@@ -279,7 +391,7 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
                             _canProceed = false; // Reset when page changes
                           });
                         },
-                        itemCount: lessonData.exercises.length+1,
+                        itemCount: lessonData.exercises.length,
                         itemBuilder: (context, indexExercise) {
                           // Trả về màn hình học tập tương ứng
                           return buildExerciseWidget(
@@ -300,7 +412,35 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
                           child: ElevatedButton(
                             onPressed: () {
                               if (_canProceed) {
-                                _nextPage(lessonData);
+                                if (lessonData
+                                            .exercises[
+                                                _pageController.page!.toInt()]
+                                            .instruction ==
+                                        "Từ mới! ấn để phát lại" ||
+                                    lessonData
+                                            .exercises[
+                                                _pageController.page!.toInt()]
+                                            .instruction ==
+                                        "Nối những thẻ này" ||
+                                    lessonData
+                                            .exercises[
+                                                _pageController.page!.toInt()]
+                                            .instruction ==
+                                        "Nghe đoạn hội thoại sau và làm bài") {
+                                  _nextPage(lessonData);
+                                  return;
+                                }
+                                if (_isCorrect) {
+                                  _showCorrectAnswer(
+                                      context, _correctAnswer, lessonData,
+                                      isCorrect: true);
+                                  ;
+                                } else {
+                                  _showCorrectAnswer(
+                                      context, _correctAnswer, lessonData,
+                                      isCorrect: false);
+                                }
+                                //_nextPage(lessonData);
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -338,44 +478,76 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
       },
     );
   }
+
+  Widget buildExerciseWidget(
+      Exercise exercise, Function(bool, bool, String) onLessonCompleted) {
+    // Parse exercise type based on id or other properties
+    switch (exercise.instruction) {
+      case "Từ mới! ấn để phát lại": // LearnWord exercise
+        return LearnWordScreen(
+          exercise: exercise,
+          onLessonCompleted: onLessonCompleted,
+        );
+
+      case "Lựa chọn câu trả lời đúng": // ChooseAnswer exercise
+        return ChooseAnswerScreen(
+          exercise: exercise,
+          onLessonCompleted: onLessonCompleted,
+        );
+
+      case "Nối những thẻ này": // FillInTheBlank exercise
+        return ConnectCardScreen(
+          exercise: exercise,
+          onLessonCompleted: onLessonCompleted,
+        );
+
+      case "Dịch câu này bằng cách sắp xếp": // FillInTheBlank exercise
+        return FillInTheBlankScreen(
+          exercise: exercise,
+          onLessonCompleted: onLessonCompleted,
+        );
+
+      case "Nghe đoạn hội thoại sau và làm bài": // FillInTheBlank exercise
+        return FillConversationScreen(
+          exercise: exercise,
+          onLessonCompleted: onLessonCompleted,
+        );
+
+      default:
+        // Unknown exercise type or fallback
+        return WordLearnedScreen();
+    }
+  }
 }
 
-Widget buildExerciseWidget(
-    Exercise exercise, Function(bool) onLessonCompleted) {
-  // Parse exercise type based on id or other properties
-  switch (exercise.instruction) {
-    case "Từ mới! ấn để phát lại": // LearnWord exercise
-      return LearnWordScreen(
-        exercise: exercise,
-        onLessonCompleted: onLessonCompleted,
-      );
+Widget _buildStar(int score, int totalExercise) {
+  // Calculate stars based on percentage of correct answers
+  // 0-33% = 1 star, 34-66% = 2 stars, 67-100% = 3 stars
+  int stars = 0;
 
-    case "Lựa chọn câu trả lời đúng": // ChooseAnswer exercise
-      return ChooseAnswerScreen(
-        exercise: exercise,
-        onLessonCompleted: onLessonCompleted,
-      );
+  if (totalExercise > 0) {
+    double percentage = (score / totalExercise) * 100;
 
-    case "Nối những thẻ này": // FillInTheBlank exercise
-      return ConnectCardScreen(
-        exercise: exercise,
-        onLessonCompleted: onLessonCompleted,
-      );
-
-    case "Dịch câu này bằng cách sắp xếp": // FillInTheBlank exercise
-      return FillInTheBlankScreen(
-        exercise: exercise,
-        onLessonCompleted: onLessonCompleted,
-      );
-
-    case "Nghe đoạn hội thoại sau và làm bài": // FillInTheBlank exercise
-      return FillConversationScreen(
-        exercise: exercise,
-        onLessonCompleted: onLessonCompleted,
-      );
-
-    default:
-      // Unknown exercise type or fallback
-      return WordLearnedScreen();
+    if (percentage >= 67) {
+      stars = 2;
+    } else if (percentage >= 34) {
+      stars = 1;
+    } else if (percentage > 0) {
+      stars = 0;
+    }
   }
+
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(stars >= 1 ? Icons.star : Icons.star_border,
+          color: stars >= 1 ? Colors.amber : Colors.grey.shade200, size: 28),
+      const SizedBox(width: 12),
+      Icon(stars >= 2 ? Icons.star : Icons.star_border,
+          color: stars >= 2 ? Colors.amber : Colors.grey.shade200, size: 28),
+      const SizedBox(width: 12),
+      Icon(stars >= 3 ? Icons.star : Icons.star_border,
+          color: stars >= 3 ? Colors.amber : Colors.grey.shade200, size: 28),
+    ],
+  );
 }
