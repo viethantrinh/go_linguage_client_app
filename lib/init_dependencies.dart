@@ -22,6 +22,7 @@ import 'package:go_linguage/features/home/presentation/bloc/home_bloc.dart';
 import 'package:go_linguage/features/lesson/data/datasources/lesson_data_source.dart';
 import 'package:go_linguage/features/lesson/data/repositories/lesson_repository_impl.dart';
 import 'package:go_linguage/features/lesson/domain/repositories/home_repository.dart';
+import 'package:go_linguage/features/lesson/domain/usecases/pronoun_usecase.dart';
 import 'package:go_linguage/features/lesson/domain/usecases/view_usecase.dart';
 import 'package:go_linguage/features/lesson/presentation/bloc/lesson_bloc.dart';
 import 'package:go_linguage/features/main/presentation/bloc/main_bloc.dart';
@@ -176,8 +177,12 @@ void _initAuthDependencies() {
         ..registerFactory<LessonViewUsecase>(
           () => LessonViewUsecase(serviceLocator<LessonRepository>()),
         )
+        ..registerFactory<PronounUsecase>(
+          () => PronounUsecase(serviceLocator<LessonRepository>()),
+        )
         ..registerLazySingleton<LessonBloc>(
-          () => LessonBloc(serviceLocator<LessonViewUsecase>()),
+          () => LessonBloc(serviceLocator<LessonViewUsecase>(),
+              serviceLocator<PronounUsecase>()),
         )
       ///////////////////////////////////////////////////
       ;

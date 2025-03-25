@@ -12,3 +12,11 @@ final class ViewData extends ViewEvent {
   @override
   List<Object> get props => [id];
 }
+
+final class CheckPronounEvent extends ViewEvent {
+  final String oggPath;
+  final String sentence;
+  CheckPronounEvent(this.oggPath, this.sentence);
+  @override
+  List<Object> get props => [oggPath, sentence];
+}

@@ -17,4 +17,5 @@ class ApiConstants {
 
   static const String getHomeData = '/main/home';
   static const String getLessonData = '/topics/1/lessons/detail';
+  static const String pronunciationAssessment = "/learns/pronoun-assessment";
 }

@@ -5,6 +5,7 @@ import 'package:go_linguage/core/common/widgets/back_button.dart';
 import 'package:go_linguage/core/common/widgets/loading_indicator.dart';
 import 'package:go_linguage/core/common/widgets/progress_bar.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
+import 'package:go_linguage/features/lesson/presentation/pages/pronoun_assessment.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 import 'package:go_linguage/features/subject/model/subject_model.dart';
 import 'package:go_linguage/features/subject/presentation/bloc/subject_bloc.dart';
@@ -138,6 +139,14 @@ class _SubjectPageState extends State<SubjectPage> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
+                        if (subjectData[indexLevel].lessonType == 2) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => PronounAssessmentScreen(
+                                    exercises:
+                                        subjectData[indexLevel].exercises,
+                                  )));
+                          return;
+                        }
                         // Navigate to standalone lesson route
                         context.push(
                             '/home/subject/${subjectData[indexLevel].id}/lesson/${indexLevel + 1}');
