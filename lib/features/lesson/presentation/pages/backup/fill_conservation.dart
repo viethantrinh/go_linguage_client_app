@@ -154,14 +154,14 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Title
-            if(widget.exercise.instruction != null)
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                widget.exercise.instruction ?? "ERROR",
-                style: Theme.of(context).textTheme.titleLarge,
+            if (widget.exercise.instruction != null)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  widget.exercise.instruction ?? "ERROR",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
-            ),
 
             // Conversation
             Expanded(

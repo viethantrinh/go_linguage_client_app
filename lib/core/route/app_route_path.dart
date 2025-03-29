@@ -29,4 +29,5 @@ class AppRoutePath {
   static const myVocabulary = '/my-vocabulary';
   static const myDialog = '/my-dialog';
   static const flashCard = '/flash-card';
+  static const flashCardList = '/flash-card-list';
 }

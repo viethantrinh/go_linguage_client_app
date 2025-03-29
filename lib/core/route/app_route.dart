@@ -9,6 +9,7 @@ import 'package:go_linguage/features/auth/presentation/pages/splash_page.dart';
 import 'package:go_linguage/features/exam/data/models/exam_model.dart';
 import 'package:go_linguage/features/exam/presentation/pages/dialog_learned.dart';
 import 'package:go_linguage/features/exam/presentation/pages/flash_card.dart';
+import 'package:go_linguage/features/exam/presentation/pages/flash_card_list.dart';
 import 'package:go_linguage/features/exam/presentation/pages/vocabulary_learned.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/exam_fail.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/learn_lesson.dart';
@@ -121,12 +122,18 @@ class AppRoute {
           return MyDialogPage(dialogues: dialogues);
         },
       ),
-
+      GoRoute(
+        path: AppRoutePath.flashCardList,
+        builder: (context, state) {
+          final flashCards = state.extra as List<FlashCard>;
+          return MyFlashCardPage(flashCards: flashCards);
+        },
+      ),
       GoRoute(
         path: AppRoutePath.flashCard,
         builder: (context, state) {
-          final flashCard = state.extra as List<FlashCard>;
-          return FlashCardPage(flashCards: flashCard);
+          final flashCard = state.extra as FlashCard;
+          return FlashCardPage(flashCard: flashCard);
         },
       ),
       GoRoute(

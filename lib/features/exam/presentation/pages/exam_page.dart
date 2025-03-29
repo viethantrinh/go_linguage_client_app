@@ -145,7 +145,7 @@ class _ExamPageState extends State<ExamPage> {
                     const SizedBox(height: 16),
                     GestureDetector(
                       onTap: () {
-                        context.push(AppRoutePath.flashCard,
+                        context.push(AppRoutePath.flashCardList,
                             extra: examData.flashCards);
                       },
                       child: Container(
