@@ -541,8 +541,6 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
                           )
                         : CacheAudioPlayer(
                             url: message.audioUrl,
-                            autoPlay:
-                                false, // We handle auto-play separately in _showNextMessage
                             child: const Icon(Icons.volume_up, size: 18),
                           ),
                   ),
@@ -578,8 +576,6 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
                           )
                         : CacheAudioPlayer(
                             url: message.audioUrl,
-                            autoPlay:
-                                false, // We handle auto-play separately in _showNextMessage
                             child: const Icon(Icons.volume_up, size: 18),
                           ),
                   ),

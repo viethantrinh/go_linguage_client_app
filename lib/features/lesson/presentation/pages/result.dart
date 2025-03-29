@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 class LessonCompletedScreen extends StatelessWidget {
   const LessonCompletedScreen({
     super.key,
-    this.points = 150,
+    this.points = 0,
     this.onContinue,
     this.onRestart,
     this.onShare,
@@ -141,119 +141,6 @@ class LessonCompletedScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFallbackMonkey() {
-    return Container(
-      width: 180,
-      height: 180,
-      decoration: BoxDecoration(
-        color: Colors.brown.shade300,
-        borderRadius: BorderRadius.circular(90),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.brown.shade200,
-              borderRadius: BorderRadius.circular(60),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    width: 40,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: Colors.brown.shade100,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Container(
-            width: 40,
-            height: 10,
-            decoration: BoxDecoration(
-              color: AppColor.primary500,
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFallbackBird() {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.blue.shade300,
-        borderRadius: BorderRadius.circular(40),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 20,
-              height: 20,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Icon(Icons.remove, size: 10, color: Colors.black),
-              ),
-            ),
-            const SizedBox(height: 5),
-            Container(
-              width: 30,
-              height: 15,
-              decoration: BoxDecoration(
-                color: Colors.yellow.shade300,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                  bottomLeft: Radius.circular(15),
-                  bottomRight: Radius.circular(15),
                 ),
               ),
             ),

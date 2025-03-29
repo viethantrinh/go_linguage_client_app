@@ -7,6 +7,7 @@ import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/features/lesson/presentation/bloc/lesson_bloc.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/word_learned.dart';
+import 'package:go_linguage/features/lesson/presentation/widgets/learn_app_bar.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 import 'package:go_router/go_router.dart';
 import 'learn_word.dart';
@@ -16,13 +17,16 @@ import 'pick_answer.dart';
 import 'fill_in_the_blank.dart';
 import 'fill_conservation.dart';
 import 'result.dart';
-import 'pronoun_assessment.dart';
 
 class LearnLessonScreen extends StatefulWidget {
+  final bool isExam;
   final int lessonId;
   final int subjectId;
   const LearnLessonScreen(
-      {super.key, required this.lessonId, required this.subjectId});
+      {super.key,
+      required this.lessonId,
+      required this.subjectId,
+      required this.isExam});
 
   @override
   State<LearnLessonScreen> createState() => _LearnLessonScreenState();
@@ -44,13 +48,13 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
     String correctAnswer,
   ) {
     Future.delayed(const Duration(milliseconds: 300), () {
-      setState(() {
+    setState(() {
         _correctAnswer = correctAnswer;
         _isCorrect = isAcepted;
-        if (isAcepted) {
+        if (isAcepted && !widget.isExam) {
           _totalScore++;
         }
-        _canProceed = isCompleted;
+      _canProceed = isCompleted;
       });
     });
   }
@@ -59,7 +63,7 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      context.read<LessonBloc>().add(ViewData(widget.lessonId));
+      context.read<LessonBloc>().add(GetData(widget.lessonId));
     });
   }
 
@@ -167,6 +171,11 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
                   height: 56,
                   child: ElevatedButton(
                     onPressed: () {
+                      if (widget.isExam &&
+                          _totalScore == lessonData.exercises.length - 3) {
+                        context.pushReplacement(
+                            '/exam-fail/${widget.subjectId}/${widget.lessonId}');
+                      }
                       Navigator.of(context).pop();
                       _nextPage(lessonData);
                     },
@@ -203,10 +212,9 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
       listener: (context, state) {
         if (state is LoadedData) {
           final lessonData = state.props[0] as LessonModel;
-          // Reset canProceed when new data is loaded
-          // setState(() {
-          //   _canProceed = false;
-          // });
+          if (widget.isExam) {
+            _totalScore = lessonData.exercises.length;
+          }
         } else if (state is LoadedFailure) {
           final snackBar = SnackBar(content: Text(state.message));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -221,46 +229,12 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
             },
             child: Scaffold(
               backgroundColor: Colors.white,
-              appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(100),
-                child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomBackButton(
-                          icon: Icons.close,
-                          onPressed: () {
-                            showExitConfirmation(context);
-                          },
-                        ),
-                        buildStar(_totalScore, lessonData.exercises.length),
-                        IconButton(
-                          icon: const Icon(Icons.settings,
-                              color: Colors.black54, size: 24),
-                          onPressed: () {},
-                        ),
-                      ],
-                    )),
-              ),
+              appBar: learnAppBar(context, _totalScore, _currentPage,
+                  lessonData.exercises.length,
+                  isExam: widget.isExam),
               body: SafeArea(
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      child: PercentageProgressBar(
-                        percentage:
-                            (_currentPage + 1) / lessonData.exercises.length,
-                        height: 10,
-                      ),
-                    ),
                     Expanded(
                       child: PageView.builder(
                         controller: _pageController,
@@ -320,6 +294,11 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
                                   _showCorrectAnswer(
                                       context, _correctAnswer, lessonData,
                                       isCorrect: false);
+                                  if (widget.isExam) {
+                                    setState(() {
+                                      _totalScore--;
+                                    });
+                                  }
                                 }
                                 //_nextPage(lessonData);
                               }
@@ -401,158 +380,126 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
   }
 }
 
-Widget buildStar(int score, int totalExercise) {
-  // Calculate stars based on percentage of correct answers
-  // 0-33% = 1 star, 34-66% = 2 stars, 67-100% = 3 stars
-  int stars = 0;
-
-  if (totalExercise > 0) {
-    double percentage = (score / totalExercise) * 100;
-
-    if (percentage >= 67) {
-      stars = 2;
-    } else if (percentage >= 34) {
-      stars = 1;
-    } else if (percentage > 0) {
-      stars = 0;
-    }
-  }
-
-  return Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Icon(stars >= 1 ? Icons.star : Icons.star_border,
-          color: stars >= 1 ? Colors.amber : Colors.grey.shade200, size: 28),
-      const SizedBox(width: 12),
-      Icon(stars >= 2 ? Icons.star : Icons.star_border,
-          color: stars >= 2 ? Colors.amber : Colors.grey.shade200, size: 28),
-      const SizedBox(width: 12),
-      Icon(stars >= 3 ? Icons.star : Icons.star_border,
-          color: stars >= 3 ? Colors.amber : Colors.grey.shade200, size: 28),
-    ],
-  );
-}
-
 // Hiển thị bottom sheet cảnh báo khi thoát
 Future<bool> showExitConfirmation(BuildContext context) async {
   final result = await showModalBottomSheet<bool>(
-    context: context,
-    backgroundColor: Colors.transparent,
-    builder: (BuildContext context) {
-      return Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Thanh kéo
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Thanh kéo
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
 
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 22),
-              child: Column(
-                spacing: 15,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Text(
-                        'Thoát Bài Học',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF455A64),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 22),
+                child: Column(
+                  spacing: 15,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'Thoát Bài Học',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF455A64),
+                          ),
                         ),
+                      ],
+                    ),
+
+                    // Nội dung
+                    Text(
+                      'Bạn có chắc không?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                        height: 1.5,
                       ),
-                    ],
-                  ),
-
-                  // Nội dung
-                  Text(
-                    'Bạn có chắc không?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      height: 1.5,
                     ),
-                  ),
-                  Text(
-                    'Bạn sẽ mất toàn bộ quá trình của bài học này.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      height: 1.5,
+                    Text(
+                      'Bạn sẽ mất toàn bộ quá trình của bài học này.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                        height: 1.5,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // Nút Thoát
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
+              // Nút Thoát
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
                   onPressed: () {
                     context.pop();
                     context.pop();
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.primary500,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary500,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Thoát',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    child: const Text(
+                      'Thoát',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            // Nút Huỷ
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text(
-                'Huỷ',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black54,
+              // Nút Huỷ
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text(
+                  'Huỷ',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 24),
-          ],
-        ),
-      );
-    },
-  );
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
+    );
 
-  // Nếu người dùng nhấn Thoát hoặc result là null (nhấn ra ngoài), trả về true để thoát
-  return result ?? false;
+    // Nếu người dùng nhấn Thoát hoặc result là null (nhấn ra ngoài), trả về true để thoát
+    return result ?? false;
 }

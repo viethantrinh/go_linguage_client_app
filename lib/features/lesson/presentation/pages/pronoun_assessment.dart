@@ -401,6 +401,7 @@ class _PronounAssessmentScreenState extends State<PronounAssessmentScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LessonBloc, LessonState>(listener: (context, state) {
+      
       if (state is CheckPronounState) {
         final result = state.result;
         final status = state.status;
@@ -477,18 +478,19 @@ class _PronounAssessmentScreenState extends State<PronounAssessmentScreen> {
                               )),
                               Column(
                                 children: [
-                                  Container(
-                                      width: 48,
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                            color: Colors.grey.shade300,
-                                            width: 1),
-                                      ),
-                                      child: CacheAudioPlayer(
-                                        url: widget.exercises[index].audioUrl!,
+                                  CacheAudioPlayer(
+                                      url: widget.exercises[index].audioUrl!,
+                                      child: Container(
+                                        width: 48,
+                                        height: 48,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: Colors.grey.shade300,
+                                              width: 1),
+                                        ),
                                         child: const Icon(Icons.volume_up,
                                             color: Colors.black54),
                                       )),

@@ -23,9 +23,10 @@ class _DialogPageState extends State<DialogPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
+        preferredSize: const Size.fromHeight(100), // Chiều cao AppBar
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          height: 70,
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(width: 1.5, color: Colors.grey[300]!),
@@ -34,14 +35,9 @@ class _DialogPageState extends State<DialogPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Danh sách bài học',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Image.asset(
-                'assets/icons/lessons/0.png', // Thay thế bằng đường dẫn thực tế
-                width: 40,
-                height: 40,
-              ),
+                "Hội thoại",
+                style: Theme.of(context).textTheme.titleLarge,
+              )
             ],
           ),
         ),
