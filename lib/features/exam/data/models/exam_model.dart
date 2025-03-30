@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
+
 ExamResopnseModel examResopnseModelFromJson(String str) =>
     ExamResopnseModel.fromJson(json.decode(str));
 
@@ -11,165 +13,166 @@ String examResopnseModelToJson(ExamResopnseModel data) =>
     json.encode(data.toJson());
 
 class ExamResopnseModel {
-  List<Exam> exams;
+  List<Exercise> exercises;
   List<FlashCard> flashCards;
   PreviousLearned previousLearned;
 
   ExamResopnseModel({
-    required this.exams,
+    required this.exercises,
     required this.flashCards,
     required this.previousLearned,
   });
 
   factory ExamResopnseModel.fromJson(Map<String, dynamic> json) =>
       ExamResopnseModel(
-        exams: List<Exam>.from(json["exams"].map((x) => Exam.fromJson(x))),
+        exercises: List<Exercise>.from(
+            json["exercises"].map((x) => Exercise.fromJson(x))),
         flashCards: List<FlashCard>.from(
             json["flashCards"].map((x) => FlashCard.fromJson(x))),
         previousLearned: PreviousLearned.fromJson(json["previousLearned"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "exams": List<dynamic>.from(exams.map((x) => x.toJson())),
+        "exercises": List<dynamic>.from(exercises.map((x) => x.toJson())),
         "flashCards": List<dynamic>.from(flashCards.map((x) => x.toJson())),
         "previousLearned": previousLearned.toJson(),
       };
 }
 
-class Exam {
-  int id;
-  String instruction;
-  int displayOrder;
-  Data data;
+// class Exercise {
+//   int id;
+//   String instruction;
+//   int displayOrder;
+//   Data data;
 
-  Exam({
-    required this.id,
-    required this.instruction,
-    required this.displayOrder,
-    required this.data,
-  });
+//   Exercise({
+//     required this.id,
+//     required this.instruction,
+//     required this.displayOrder,
+//     required this.data,
+//   });
 
-  factory Exam.fromJson(Map<String, dynamic> json) => Exam(
-        id: json["id"],
-        instruction: json["instruction"],
-        displayOrder: json["displayOrder"],
-        data: Data.fromJson(json["data"]),
-      );
+//   factory Exercise.fromJson(Map<String, dynamic> json) => Exercise(
+//         id: json["id"],
+//         instruction: json["instruction"],
+//         displayOrder: json["displayOrder"],
+//         data: Data.fromJson(json["data"]),
+//       );
 
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "instruction": instruction,
-        "displayOrder": displayOrder,
-        "data": data.toJson(),
-      };
-}
+//   Map<String, dynamic> toJson() => {
+//         "id": id,
+//         "instruction": instruction,
+//         "displayOrder": displayOrder,
+//         "data": data.toJson(),
+//       };
+// }
 
-class Data {
-  String sourceLanguage;
-  String targetLanguage;
-  String? questionType;
-  QuestionElement? question;
-  List<Option>? options;
-  QuestionElement? sentence;
-  List<Word>? words;
+// class Data {
+//   String sourceLanguage;
+//   String targetLanguage;
+//   String? questionType;
+//   QuestionElement? question;
+//   List<Option>? options;
+//   QuestionElement? sentence;
+//   List<Word>? words;
 
-  Data({
-    required this.sourceLanguage,
-    required this.targetLanguage,
-    this.questionType,
-    this.question,
-    this.options,
-    this.sentence,
-    this.words,
-  });
+//   Data({
+//     required this.sourceLanguage,
+//     required this.targetLanguage,
+//     this.questionType,
+//     this.question,
+//     this.options,
+//     this.sentence,
+//     this.words,
+//   });
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-        sourceLanguage: json["sourceLanguage"],
-        targetLanguage: json["targetLanguage"],
-        questionType: json["questionType"],
-        question: json["question"] == null
-            ? null
-            : QuestionElement.fromJson(json["question"]),
-        options: json["options"] == null
-            ? []
-            : List<Option>.from(
-                json["options"]!.map((x) => Option.fromJson(x))),
-        sentence: json["sentence"] == null
-            ? null
-            : QuestionElement.fromJson(json["sentence"]),
-        words: json["words"] == null
-            ? []
-            : List<Word>.from(json["words"]!.map((x) => Word.fromJson(x))),
-      );
+//   factory Data.fromJson(Map<String, dynamic> json) => Data(
+//         sourceLanguage: json["sourceLanguage"],
+//         targetLanguage: json["targetLanguage"],
+//         questionType: json["questionType"],
+//         question: json["question"] == null
+//             ? null
+//             : QuestionElement.fromJson(json["question"]),
+//         options: json["options"] == null
+//             ? []
+//             : List<Option>.from(
+//                 json["options"]!.map((x) => Option.fromJson(x))),
+//         sentence: json["sentence"] == null
+//             ? null
+//             : QuestionElement.fromJson(json["sentence"]),
+//         words: json["words"] == null
+//             ? []
+//             : List<Word>.from(json["words"]!.map((x) => Word.fromJson(x))),
+//       );
 
-  Map<String, dynamic> toJson() => {
-        "sourceLanguage": sourceLanguage,
-        "targetLanguage": targetLanguage,
-        "questionType": questionType,
-        "question": question?.toJson(),
-        "options": options == null
-            ? []
-            : List<dynamic>.from(options!.map((x) => x.toJson())),
-        "sentence": sentence?.toJson(),
-        "words": words == null
-            ? []
-            : List<dynamic>.from(words!.map((x) => x.toJson())),
-      };
-}
+//   Map<String, dynamic> toJson() => {
+//         "sourceLanguage": sourceLanguage,
+//         "targetLanguage": targetLanguage,
+//         "questionType": questionType,
+//         "question": question?.toJson(),
+//         "options": options == null
+//             ? []
+//             : List<dynamic>.from(options!.map((x) => x.toJson())),
+//         "sentence": sentence?.toJson(),
+//         "words": words == null
+//             ? []
+//             : List<dynamic>.from(words!.map((x) => x.toJson())),
+//       };
+// }
 
-class Option {
-  OptionType optionType;
-  bool isCorrect;
-  String englishText;
-  String vietnameseText;
-  String? imageUrl;
-  String audioUrl;
+// class Option {
+//   OptionType optionType;
+//   bool isCorrect;
+//   String englishText;
+//   String vietnameseText;
+//   String audioUrl;
+//   String? imageUrl;
 
-  Option({
-    required this.optionType,
-    required this.isCorrect,
-    required this.englishText,
-    required this.vietnameseText,
-    this.imageUrl,
-    required this.audioUrl,
-  });
+//   Option({
+//     required this.optionType,
+//     required this.isCorrect,
+//     required this.englishText,
+//     required this.vietnameseText,
+//     required this.audioUrl,
+//     this.imageUrl,
+//   });
 
-  factory Option.fromJson(Map<String, dynamic> json) => Option(
-        optionType: optionTypeValues.map[json["optionType"]]!,
-        isCorrect: json["isCorrect"],
-        englishText: json["englishText"],
-        vietnameseText: json["vietnameseText"],
-        imageUrl: json["imageUrl"],
-        audioUrl: json["audioUrl"],
-      );
+//   factory Option.fromJson(Map<String, dynamic> json) => Option(
+//         optionType: optionTypeValues.map[json["optionType"]]!,
+//         isCorrect: json["isCorrect"],
+//         englishText: json["englishText"],
+//         vietnameseText: json["vietnameseText"],
+//         audioUrl: json["audioUrl"],
+//         imageUrl: json["imageUrl"],
+//       );
 
-  Map<String, dynamic> toJson() => {
-        "optionType": optionTypeValues.reverse[optionType],
-        "isCorrect": isCorrect,
-        "englishText": englishText,
-        "vietnameseText": vietnameseText,
-        "imageUrl": imageUrl,
-        "audioUrl": audioUrl,
-      };
-}
+//   Map<String, dynamic> toJson() => {
+//         "optionType": optionTypeValues.reverse[optionType],
+//         "isCorrect": isCorrect,
+//         "englishText": englishText,
+//         "vietnameseText": vietnameseText,
+//         "audioUrl": audioUrl,
+//         "imageUrl": imageUrl,
+//       };
+// }
 
-enum OptionType { SENTENCE, WORD }
+// enum OptionType { SENTENCE, WORD }
 
-final optionTypeValues =
-    EnumValues({"sentence": OptionType.SENTENCE, "word": OptionType.WORD});
+// final optionTypeValues =
+//     EnumValues({"sentence": OptionType.SENTENCE, "word": OptionType.WORD});
 
 class QuestionElement {
   String englishText;
   String vietnameseText;
-  String? imageUrl;
   String audioUrl;
+  String? imageUrl;
   QuestionElement? sentence;
 
   QuestionElement({
     required this.englishText,
     required this.vietnameseText,
-    this.imageUrl,
     required this.audioUrl,
+    this.imageUrl,
     this.sentence,
   });
 
@@ -177,8 +180,8 @@ class QuestionElement {
       QuestionElement(
         englishText: json["englishText"],
         vietnameseText: json["vietnameseText"],
-        imageUrl: json["imageUrl"],
         audioUrl: json["audioUrl"],
+        imageUrl: json["imageUrl"],
         sentence: json["sentence"] == null
             ? null
             : QuestionElement.fromJson(json["sentence"]),
@@ -187,35 +190,35 @@ class QuestionElement {
   Map<String, dynamic> toJson() => {
         "englishText": englishText,
         "vietnameseText": vietnameseText,
-        "imageUrl": imageUrl,
         "audioUrl": audioUrl,
+        "imageUrl": imageUrl,
         "sentence": sentence?.toJson(),
       };
 }
 
-class Word {
-  String text;
-  bool isDistractor;
-  int correctPosition;
+// class Word {
+//   String text;
+//   bool isDistractor;
+//   int correctPosition;
 
-  Word({
-    required this.text,
-    required this.isDistractor,
-    required this.correctPosition,
-  });
+//   Word({
+//     required this.text,
+//     required this.isDistractor,
+//     required this.correctPosition,
+//   });
 
-  factory Word.fromJson(Map<String, dynamic> json) => Word(
-        text: json["text"],
-        isDistractor: json["isDistractor"],
-        correctPosition: json["correctPosition"],
-      );
+//   factory Word.fromJson(Map<String, dynamic> json) => Word(
+//         text: json["text"],
+//         isDistractor: json["isDistractor"],
+//         correctPosition: json["correctPosition"],
+//       );
 
-  Map<String, dynamic> toJson() => {
-        "text": text,
-        "isDistractor": isDistractor,
-        "correctPosition": correctPosition,
-      };
-}
+//   Map<String, dynamic> toJson() => {
+//         "text": text,
+//         "isDistractor": isDistractor,
+//         "correctPosition": correctPosition,
+//       };
+// }
 
 class FlashCard {
   int id;
@@ -273,7 +276,7 @@ class Dialogue {
   int id;
   String name;
   int displayOrder;
-  List<dynamic> data;
+  List<DialogueDatum> data;
 
   Dialogue({
     required this.id,
@@ -286,7 +289,8 @@ class Dialogue {
         id: json["id"],
         name: json["name"],
         displayOrder: json["displayOrder"],
-        data: json["data"],
+        data: List<DialogueDatum>.from(
+            json["data"].map((x) => DialogueDatum.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {

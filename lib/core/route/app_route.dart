@@ -8,6 +8,7 @@ import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/splash_page.dart';
 import 'package:go_linguage/features/exam/data/models/exam_model.dart';
 import 'package:go_linguage/features/exam/presentation/pages/dialog_learned.dart';
+import 'package:go_linguage/features/exam/presentation/pages/do_review_exam.dart';
 import 'package:go_linguage/features/exam/presentation/pages/flash_card.dart';
 import 'package:go_linguage/features/exam/presentation/pages/flash_card_list.dart';
 import 'package:go_linguage/features/exam/presentation/pages/vocabulary_learned.dart';
@@ -20,6 +21,7 @@ import 'package:go_linguage/features/exam/presentation/pages/exam_page.dart';
 import 'package:go_linguage/features/home/presentation/pages/home_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/lesson_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/main_scaffold.dart';
+import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 import 'package:go_linguage/features/subject/model/subject_model.dart';
 import 'package:go_linguage/features/subject/presentation/pages/subject_page.dart';
 import 'package:go_linguage/features/payment/presentation/pages/subscription_page.dart';
@@ -134,6 +136,13 @@ class AppRoute {
         builder: (context, state) {
           final flashCard = state.extra as FlashCard;
           return FlashCardPage(flashCard: flashCard);
+        },
+      ),
+      GoRoute(
+        path: AppRoutePath.review,
+        builder: (context, state) {
+          final exercises = state.extra as List<Exercise>;
+          return DoReviewExamPage(exercises: exercises);
         },
       ),
       GoRoute(

@@ -30,4 +30,5 @@ class AppRoutePath {
   static const myDialog = '/my-dialog';
   static const flashCard = '/flash-card';
   static const flashCardList = '/flash-card-list';
+  static const review = '/review';
 }

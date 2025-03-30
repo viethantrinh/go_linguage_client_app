@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_linguage/core/common/widgets/back_button.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/core/services/notification_service.dart';
 
@@ -14,7 +15,7 @@ class _NotificationPageState extends State<NotificationPage> {
   TimeOfDay selectedTime = const TimeOfDay(hour: 20, minute: 30); // 8:30 PM
   List<bool> selectedDays = [true, true, true, true, true, true, true]; // T2-CN
   List<String> dayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-  
+
   final NotificationService _notificationService = NotificationService();
   bool _isLoading = true;
 
@@ -27,21 +28,21 @@ class _NotificationPageState extends State<NotificationPage> {
   Future<void> _loadNotificationSettings() async {
     // Initialize notification service
     await _notificationService.init();
-    
+
     // Load saved settings
     final settings = await _notificationService.getNotificationSettings();
-    
+
     if (settings != null) {
       setState(() {
         isDailyReminderEnabled = settings['isEnabled'] as bool;
         selectedDays = List<bool>.from(settings['selectedDays']);
-        
+
         final timeMap = settings['selectedTime'] as Map<String, dynamic>;
         selectedTime = TimeOfDay(
           hour: timeMap['hour'] as int,
           minute: timeMap['minute'] as int,
         );
-        
+
         _isLoading = false;
       });
     } else {
@@ -55,19 +56,29 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black54),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Thông báo',
-          style: TextStyle(
-            color: Colors.black87,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          height: 70,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(width: 1.5, color: Colors.grey[300]!),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                spacing: 10,
+                children: [
+                  const CustomBackButton(),
+                  Text(
+                    "Thông báo",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  )
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -80,7 +91,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   const SizedBox(height: 16),
                   _buildReminderCard(),
                   const SizedBox(height: 24),
-                  _buildTestNotificationButton(),
+                  //_buildTestNotificationButton(),
                 ],
               ),
             ),
@@ -93,7 +104,8 @@ class _NotificationPageState extends State<NotificationPage> {
         await _notificationService.showTestNotification();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Đã gửi thông báo kiểm tra. Kiểm tra thanh thông báo của bạn.'),
+            content: Text(
+                'Đã gửi thông báo kiểm tra. Kiểm tra thanh thông báo của bạn.'),
             duration: Duration(seconds: 3),
           ),
         );
@@ -148,7 +160,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   setState(() {
                     isDailyReminderEnabled = value;
                   });
-                  
+
                   if (value) {
                     _notificationService.scheduleStudyReminder(
                       selectedDays: selectedDays,
@@ -170,8 +182,8 @@ class _NotificationPageState extends State<NotificationPage> {
                     );
                   }
                 },
-                activeColor: AppColor.yellow,
-                activeTrackColor: AppColor.yellow.withOpacity(0.5),
+                activeColor: AppColor.primary500,
+                //activeTrackColor: AppColor.yellow.withOpacity(0.5),
               ),
             ],
           ),
@@ -365,7 +377,8 @@ class _NotificationPageState extends State<NotificationPage> {
                 (index == 0 ? 0 : 12) -
                 (selectedTime.period == DayPeriod.pm ? 12 : 0);
             bottomSheetSetState(() {
-              selectedTime = TimeOfDay(hour: newHour, minute: selectedTime.minute);
+              selectedTime =
+                  TimeOfDay(hour: newHour, minute: selectedTime.minute);
             });
           },
         ),
