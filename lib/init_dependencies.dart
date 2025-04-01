@@ -14,6 +14,16 @@ import 'package:go_linguage/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:go_linguage/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:go_linguage/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:go_linguage/features/dialog/data/datasources/dialog_data_source.dart';
+import 'package:go_linguage/features/dialog/data/repositories/dialog_repository_impl.dart';
+import 'package:go_linguage/features/dialog/domain/repositories/dialog_repository.dart';
+import 'package:go_linguage/features/dialog/domain/usecases/dialog_view_usecase.dart';
+import 'package:go_linguage/features/dialog/presentation/bloc/dialog_bloc.dart';
+import 'package:go_linguage/features/dialog_list/data/datasources/conversation_data_source.dart';
+import 'package:go_linguage/features/dialog_list/data/repositories/conversation_repository_impl.dart';
+import 'package:go_linguage/features/dialog_list/domain/repositories/conversation_repository.dart';
+import 'package:go_linguage/features/dialog_list/domain/usecases/conversation_view_usecase.dart';
+import 'package:go_linguage/features/dialog_list/presentation/bloc/conversation_bloc.dart';
 import 'package:go_linguage/features/exam/data/datasources/exam_remote_data_source.dart';
 import 'package:go_linguage/features/exam/data/repositories/exam_repository_impl.dart';
 import 'package:go_linguage/features/exam/domain/repositories/exam_repository.dart';
@@ -210,6 +220,45 @@ void _initAuthDependencies() {
     )
     ..registerLazySingleton<ExamBloc>(() => ExamBloc(
           serviceLocator<ExamViewUsecase>(),
+        ))
+
+    ///////////////////////___CONVERSATION___///////////////////////
+    ..registerFactory<ConversationRemoteDataSourceImpl>(
+      () => ConversationRemoteDataSourceImpl(
+        sharedPreferences: serviceLocator<SharedPreferences>(),
+        dioClient: serviceLocator<DioClient>(),
+      ),
+    )
+    ..registerFactory<ConversationRepository>(
+      () => ConversationRepositoryImpl(
+        conversationRemoteDataSourceImpl:
+            serviceLocator<ConversationRemoteDataSourceImpl>(),
+      ),
+    )
+    ..registerFactory<ConversationViewUsecase>(
+      () => ConversationViewUsecase(serviceLocator<ConversationRepository>()),
+    )
+    ..registerLazySingleton<ConversationBloc>(() => ConversationBloc(
+          serviceLocator<ConversationViewUsecase>(),
+        ))
+    ///////////////////////___DIALOG___///////////////////////
+    ..registerFactory<DialogRemoteDataSourceImpl>(
+      () => DialogRemoteDataSourceImpl(
+        sharedPreferences: serviceLocator<SharedPreferences>(),
+        dioClient: serviceLocator<DioClient>(),
+      ),
+    )
+    ..registerFactory<DialogRepository>(
+      () => DialogRepositoryImpl(
+        dialogRemoteDataSourceImpl:
+            serviceLocator<DialogRemoteDataSourceImpl>(),
+      ),
+    )
+    ..registerFactory<DialogViewUsecase>(
+      () => DialogViewUsecase(serviceLocator<DialogRepository>()),
+    )
+    ..registerLazySingleton<DialogBloc>(() => DialogBloc(
+          serviceLocator<DialogViewUsecase>(),
         ));
 }
 

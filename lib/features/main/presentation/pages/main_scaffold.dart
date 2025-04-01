@@ -36,8 +36,9 @@ class _MainScaffoldState extends State<MainScaffold> {
                     _buildNavItem(0, Icons.lightbulb_outline, 'Học'),
                     _buildNavItem(1, Icons.menu_book_outlined, 'Kiểm tra'),
                     _buildNavItem(2, Icons.chat_outlined, 'Hội thoại'),
+                    _buildNavItem(3, Icons.music_note_outlined, 'Bài hát'),
                     if (mainState.showProTab)
-                      _buildNavItem(3, Icons.diamond_outlined, 'Pro'),
+                      _buildNavItem(4, Icons.diamond_outlined, 'Pro'),
                   ],
                 ),
               ),
@@ -55,7 +56,7 @@ class _MainScaffoldState extends State<MainScaffold> {
 
     return InkWell(
       onTap: () {
-        if (index == 3) {
+        if (index == 4) {
           context.push(AppRoutePath.subscription);
           return;
         }
@@ -67,7 +68,6 @@ class _MainScaffoldState extends State<MainScaffold> {
         context.read<MainBloc>().add(UpdateMainState(index));
       },
       child: SizedBox(
-        width: 95,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,

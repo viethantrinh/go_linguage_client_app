@@ -45,13 +45,13 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
     String correctAnswer,
   ) {
     Future.delayed(const Duration(milliseconds: 300), () {
-      setState(() {
+    setState(() {
         _correctAnswer = correctAnswer;
         _isCorrect = isAcepted;
         if (isAcepted && !widget.isExam) {
           _totalScore++;
         }
-        _canProceed = isCompleted;
+      _canProceed = isCompleted;
       });
     });
   }
@@ -374,129 +374,129 @@ Widget buildExerciseWidget(
     default:
       // Unknown exercise type or fallback
       return WordLearnedScreen();
+    }
   }
-}
 
-// Hiển thị bottom sheet cảnh báo khi thoát
+  // Hiển thị bottom sheet cảnh báo khi thoát
 Future<bool> showExitConfirmation(BuildContext context) async {
-  final result = await showModalBottomSheet<bool>(
-    context: context,
-    backgroundColor: Colors.transparent,
-    builder: (BuildContext context) {
-      return Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Thanh kéo
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Thanh kéo
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
 
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 22),
-              child: Column(
-                spacing: 15,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Text(
-                        'Thoát Bài Học',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF455A64),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 22),
+                child: Column(
+                  spacing: 15,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'Thoát Bài Học',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF455A64),
+                          ),
                         ),
+                      ],
+                    ),
+
+                    // Nội dung
+                    Text(
+                      'Bạn có chắc không?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                        height: 1.5,
                       ),
-                    ],
-                  ),
-
-                  // Nội dung
-                  Text(
-                    'Bạn có chắc không?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      height: 1.5,
                     ),
-                  ),
-                  Text(
-                    'Bạn sẽ mất toàn bộ quá trình của bài học này.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      height: 1.5,
+                    Text(
+                      'Bạn sẽ mất toàn bộ quá trình của bài học này.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                        height: 1.5,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // Nút Thoát
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
+              // Nút Thoát
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
                   onPressed: () {
                     context.pop();
                     context.pop();
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.primary500,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary500,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Thoát',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    child: const Text(
+                      'Thoát',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            // Nút Huỷ
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text(
-                'Huỷ',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black54,
+              // Nút Huỷ
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text(
+                  'Huỷ',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 24),
-          ],
-        ),
-      );
-    },
-  );
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
+    );
 
-  // Nếu người dùng nhấn Thoát hoặc result là null (nhấn ra ngoài), trả về true để thoát
-  return result ?? false;
+    // Nếu người dùng nhấn Thoát hoặc result là null (nhấn ra ngoài), trả về true để thoát
+    return result ?? false;
 }

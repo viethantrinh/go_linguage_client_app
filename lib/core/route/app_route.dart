@@ -6,6 +6,8 @@ import 'package:go_linguage/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/sign_up_option_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/splash_page.dart';
+import 'package:go_linguage/features/dialog/presentation/pages/dialog_page.dart';
+import 'package:go_linguage/features/dialog_list/presentation/pages/dialog_page.dart';
 import 'package:go_linguage/features/exam/data/models/exam_model.dart';
 import 'package:go_linguage/features/exam/presentation/pages/dialog_learned.dart';
 import 'package:go_linguage/features/exam/presentation/pages/do_review_exam.dart';
@@ -16,11 +18,12 @@ import 'package:go_linguage/features/lesson/presentation/pages/exam_fail.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/learn_lesson.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/result.dart';
 import 'package:go_linguage/features/search/presentation/search_page.dart';
-import 'package:go_linguage/features/main/presentation/pages/dialog_page.dart';
+import 'package:go_linguage/features/dialog_list/presentation/pages/conversation_page.dart';
 import 'package:go_linguage/features/exam/presentation/pages/exam_page.dart';
 import 'package:go_linguage/features/home/presentation/pages/home_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/lesson_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/main_scaffold.dart';
+import 'package:go_linguage/features/song/song.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 import 'package:go_linguage/features/subject/model/subject_model.dart';
 import 'package:go_linguage/features/subject/presentation/pages/subject_page.dart';
@@ -212,6 +215,10 @@ class AppRoute {
               isExam: isExam == "true");
         },
       ),
+      GoRoute(
+        path: AppRoutePath.conversation,
+        builder: (context, state) =>  DialogPage(),
+      ),
 
       // Main app shell route with nested branches
       StatefulShellRoute.indexedStack(
@@ -269,7 +276,15 @@ class AppRoute {
             routes: [
               GoRoute(
                 path: AppRoutePath.dialog,
-                builder: (context, state) => const DialogPage(),
+                builder: (context, state) => const ConversationPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutePath.song,
+                builder: (context, state) => const SongPage(),
               ),
             ],
           ),

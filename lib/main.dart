@@ -6,6 +6,8 @@ import 'package:go_linguage/core/route/app_route.dart';
 import 'package:go_linguage/core/services/notification_service.dart';
 import 'package:go_linguage/core/theme/app_theme.dart';
 import 'package:go_linguage/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:go_linguage/features/dialog/presentation/bloc/dialog_bloc.dart';
+import 'package:go_linguage/features/dialog_list/presentation/bloc/conversation_bloc.dart';
 import 'package:go_linguage/features/exam/presentation/bloc/exam_bloc.dart';
 import 'package:go_linguage/features/home/presentation/bloc/home_bloc.dart';
 import 'package:go_linguage/features/lesson/presentation/bloc/lesson_bloc.dart';
@@ -36,6 +38,8 @@ void main() async {
         BlocProvider(create: (_) => serviceLocator<SubjectBloc>()),
         BlocProvider(create: (_) => serviceLocator<LessonBloc>()),
         BlocProvider(create: (_) => serviceLocator<ExamBloc>()),
+        BlocProvider(create: (_) => serviceLocator<ConversationBloc>()),
+        BlocProvider(create: (_) => serviceLocator<DialogBloc>()),
       ],
       child: const MyApp(),
     ),

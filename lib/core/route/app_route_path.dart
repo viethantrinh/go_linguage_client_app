@@ -31,4 +31,6 @@ class AppRoutePath {
   static const flashCard = '/flash-card';
   static const flashCardList = '/flash-card-list';
   static const review = '/review';
+  static const song = '/song';
+  static const conversation = '/conversation';
 }
