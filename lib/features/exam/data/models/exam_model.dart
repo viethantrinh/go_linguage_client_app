@@ -276,7 +276,8 @@ class Dialogue {
   int id;
   String name;
   int displayOrder;
-  List<DialogueDatum> data;
+  dynamic data;
+  //List<DialogueDatum> data;
 
   Dialogue({
     required this.id,
@@ -286,11 +287,12 @@ class Dialogue {
   });
 
   factory Dialogue.fromJson(Map<String, dynamic> json) => Dialogue(
-        id: json["id"],
-        name: json["name"],
-        displayOrder: json["displayOrder"],
-        data: List<DialogueDatum>.from(
-            json["data"].map((x) => DialogueDatum.fromJson(x))),
+      id: json["id"],
+      name: json["name"],
+      displayOrder: json["displayOrder"],
+      data: json["data"]
+      // List<DialogueDatum>.from(
+      //     json["data"].map((x) => DialogueDatum.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
