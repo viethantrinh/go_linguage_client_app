@@ -18,6 +18,7 @@ import 'package:go_linguage/features/dialog/data/datasources/dialog_data_source.
 import 'package:go_linguage/features/dialog/data/repositories/dialog_repository_impl.dart';
 import 'package:go_linguage/features/dialog/domain/repositories/dialog_repository.dart';
 import 'package:go_linguage/features/dialog/domain/usecases/dialog_view_usecase.dart';
+import 'package:go_linguage/features/dialog/domain/usecases/pronoun_dialog_usecase.dart';
 import 'package:go_linguage/features/dialog/presentation/bloc/dialog_bloc.dart';
 import 'package:go_linguage/features/dialog_list/data/datasources/conversation_data_source.dart';
 import 'package:go_linguage/features/dialog_list/data/repositories/conversation_repository_impl.dart';
@@ -257,8 +258,12 @@ void _initAuthDependencies() {
     ..registerFactory<DialogViewUsecase>(
       () => DialogViewUsecase(serviceLocator<DialogRepository>()),
     )
+    ..registerFactory<PronounDialogUsecase>(
+      () => PronounDialogUsecase(serviceLocator<DialogRepository>()),
+    )
     ..registerLazySingleton<DialogBloc>(() => DialogBloc(
           serviceLocator<DialogViewUsecase>(),
+          serviceLocator<PronounDialogUsecase>(),
         ));
 }
 

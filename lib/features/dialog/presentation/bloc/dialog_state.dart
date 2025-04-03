@@ -3,7 +3,7 @@ part of 'dialog_bloc.dart';
 @immutable
 sealed class DialogState extends Equatable {
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 final class LoadingData extends DialogState {}
@@ -23,4 +23,12 @@ final class LoadedFailure extends DialogState {
 
   @override
   List<Object> get props => [message];
+}
+
+final class CheckPronounState extends DialogState {
+  final String? message;
+
+  CheckPronounState({required this.message});
+  @override
+  List<Object?> get props => [message];
 }

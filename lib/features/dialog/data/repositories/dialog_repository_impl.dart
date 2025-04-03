@@ -20,4 +20,16 @@ class DialogRepositoryImpl implements DialogRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, String?>> sendToServer(
+      String ogaPath, String conversationLineId) async {
+    try {
+      final response = await dialogRemoteDataSourceImpl.sendToServer(
+          ogaPath, conversationLineId);
+      return Right(response);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }
