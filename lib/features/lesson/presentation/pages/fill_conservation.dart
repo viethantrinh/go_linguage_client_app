@@ -375,31 +375,32 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
                                   ),
 
                                   // Start exercise button
-                                  Container(
-                                    width: 64,
-                                    height: 64,
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 12),
-                                    child: ElevatedButton(
-                                      onPressed: _startFillInTheBlank,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.white,
-                                        elevation: 0,
-                                        shape: CircleBorder(
-                                          side: BorderSide(
-                                            color: Colors.blue,
-                                            width: 2,
+                                  if (widget.exercise.instruction != null)
+                                    Container(
+                                      width: 64,
+                                      height: 64,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 12),
+                                      child: ElevatedButton(
+                                        onPressed: _startFillInTheBlank,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          elevation: 0,
+                                          shape: CircleBorder(
+                                            side: BorderSide(
+                                              color: Colors.blue,
+                                              width: 2,
+                                            ),
                                           ),
+                                          padding: const EdgeInsets.all(0),
                                         ),
-                                        padding: const EdgeInsets.all(0),
-                                      ),
-                                      child: const Icon(
-                                        Icons.edit,
-                                        color: Colors.blue,
-                                        size: 30,
+                                        child: const Icon(
+                                          Icons.edit,
+                                          color: Colors.blue,
+                                          size: 30,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               )
                             : // Skip button during playback
@@ -541,8 +542,6 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
                           )
                         : CacheAudioPlayer(
                             url: message.audioUrl,
-                            autoPlay:
-                                false, // We handle auto-play separately in _showNextMessage
                             child: const Icon(Icons.volume_up, size: 18),
                           ),
                   ),
@@ -578,8 +577,6 @@ class _FillConversationScreenState extends State<FillConversationScreen> {
                           )
                         : CacheAudioPlayer(
                             url: message.audioUrl,
-                            autoPlay:
-                                false, // We handle auto-play separately in _showNextMessage
                             child: const Icon(Icons.volume_up, size: 18),
                           ),
                   ),

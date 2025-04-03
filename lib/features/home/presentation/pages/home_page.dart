@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
         final HomeResponseModel homeData = state.props[0] as HomeResponseModel;
 
         return Scaffold(
-          backgroundColor: Colors.grey[200],
+          backgroundColor: AppColor.surface,
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(100), // Chiều cao AppBar
             child: Container(
@@ -108,7 +108,10 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.circle, color: Colors.green),
+                      Image.asset(
+                        "assets/icons/user_information/us.png",
+                        height: 20,
+                      ),
                       Row(
                         spacing: 5,
                         children: [
@@ -122,17 +125,17 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ],
                       ),
-                      Row(
-                        spacing: 5,
-                        children: [
-                          Image.asset(
-                            "assets/icons/user_information/streak.png",
-                            height: 15,
-                          ),
-                          Text(homeData.streakPoints.toString(),
-                              style: Theme.of(context).textTheme.titleMedium),
-                        ],
-                      ),
+                      // Row(
+                      //   spacing: 5,
+                      //   children: [
+                      //     Image.asset(
+                      //       "assets/icons/user_information/streak.png",
+                      //       height: 15,
+                      //     ),
+                      //     Text(homeData.streakPoints.toString(),
+                      //         style: Theme.of(context).textTheme.titleMedium),
+                      //   ],
+                      // ),
                       GestureDetector(
                         onTap: () {
                           _navigateToSearch(homeData);

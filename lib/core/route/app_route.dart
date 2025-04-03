@@ -6,14 +6,25 @@ import 'package:go_linguage/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/sign_up_option_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/splash_page.dart';
+import 'package:go_linguage/features/dialog/presentation/pages/dialog_page.dart';
+import 'package:go_linguage/features/dialog_list/presentation/pages/dialog_page.dart';
+import 'package:go_linguage/features/exam/data/models/exam_model.dart';
+import 'package:go_linguage/features/exam/presentation/pages/dialog_learned.dart';
+import 'package:go_linguage/features/exam/presentation/pages/do_review_exam.dart';
+import 'package:go_linguage/features/exam/presentation/pages/flash_card.dart';
+import 'package:go_linguage/features/exam/presentation/pages/flash_card_list.dart';
+import 'package:go_linguage/features/exam/presentation/pages/vocabulary_learned.dart';
+import 'package:go_linguage/features/lesson/presentation/pages/exam_fail.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/learn_lesson.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/result.dart';
 import 'package:go_linguage/features/search/presentation/search_page.dart';
-import 'package:go_linguage/features/main/presentation/pages/dialog_page.dart';
-import 'package:go_linguage/features/main/presentation/pages/exam_page.dart';
+import 'package:go_linguage/features/dialog_list/presentation/pages/conversation_page.dart';
+import 'package:go_linguage/features/exam/presentation/pages/exam_page.dart';
 import 'package:go_linguage/features/home/presentation/pages/home_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/lesson_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/main_scaffold.dart';
+import 'package:go_linguage/features/song/song.dart';
+import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 import 'package:go_linguage/features/subject/model/subject_model.dart';
 import 'package:go_linguage/features/subject/presentation/pages/subject_page.dart';
 import 'package:go_linguage/features/payment/presentation/pages/subscription_page.dart';
@@ -94,6 +105,50 @@ class AppRoute {
         },
       ),
       GoRoute(
+        path: AppRoutePath.examFail,
+        builder: (context, state) {
+          final subjectId = state.pathParameters['subjectId'] ?? '1';
+          final lessonId = state.pathParameters['lessonId'] ?? '1';
+          return ExamFailScreen(
+              subjectId: int.parse(subjectId), lessonId: int.parse(lessonId));
+        },
+      ),
+      GoRoute(
+        path: AppRoutePath.myVocabulary,
+        builder: (context, state) {
+          final flashCards = state.extra as List<FlashCard>;
+          return MyVocabularyPage(flashCards: flashCards);
+        },
+      ),
+      GoRoute(
+        path: AppRoutePath.myDialog,
+        builder: (context, state) {
+          final dialogues = state.extra as List<Dialogue>;
+          return MyDialogPage(dialogues: dialogues);
+        },
+      ),
+      GoRoute(
+        path: AppRoutePath.flashCardList,
+        builder: (context, state) {
+          final flashCards = state.extra as List<FlashCard>;
+          return MyFlashCardPage(flashCards: flashCards);
+        },
+      ),
+      GoRoute(
+        path: AppRoutePath.flashCard,
+        builder: (context, state) {
+          final flashCard = state.extra as FlashCard;
+          return FlashCardPage(flashCard: flashCard);
+        },
+      ),
+      GoRoute(
+        path: AppRoutePath.review,
+        builder: (context, state) {
+          final exercises = state.extra as List<Exercise>;
+          return DoReviewExamPage(exercises: exercises);
+        },
+      ),
+      GoRoute(
         path: AppRoutePath.subscription,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
@@ -151,12 +206,18 @@ class AppRoute {
         path: AppRoutePath.lesson,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
-          final subjectId = 1;
-          //int.parse(state.pathParameters['subjectId'] ?? "1");
-          final lessonId = 1;
-          //int.parse(state.pathParameters['lessonId'] ?? "1");
-          return LearnLessonScreen(subjectId: subjectId, lessonId: lessonId);
+          final subjectId = int.parse(state.pathParameters['subjectId'] ?? "1");
+          final lessonId = int.parse(state.pathParameters['lessonId'] ?? "1");
+          final isExam = state.pathParameters['isExam'] ?? "false";
+          return LearnLessonScreen(
+              subjectId: subjectId,
+              lessonId: lessonId,
+              isExam: isExam == "true");
         },
+      ),
+      GoRoute(
+        path: AppRoutePath.conversation,
+        builder: (context, state) =>  DialogPage(),
       ),
 
       // Main app shell route with nested branches
@@ -215,7 +276,15 @@ class AppRoute {
             routes: [
               GoRoute(
                 path: AppRoutePath.dialog,
-                builder: (context, state) => const DialogPage(),
+                builder: (context, state) => const ConversationPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutePath.song,
+                builder: (context, state) => const SongPage(),
               ),
             ],
           ),

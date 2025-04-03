@@ -18,4 +18,8 @@ class ApiConstants {
   static const String getHomeData = '/main/home';
   static const String getLessonData = '/topics/1/lessons/detail';
   static const String pronunciationAssessment = "/learns/pronoun-assessment";
+  static const String getExamData = '/main/review';
+  static const String getConversationData = '/main/conversation';
+  static const String getDialogData = '/conversations/1/detail';
+  static const String checkPronoun = '/conversations/pronoun-assessment';
 }

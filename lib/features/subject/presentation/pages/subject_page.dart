@@ -147,9 +147,15 @@ class _SubjectPageState extends State<SubjectPage> {
                                   )));
                           return;
                         }
+
+                        if (subjectData[indexLevel].lessonType == 3) {
+                          context.push(
+                              '/home/subject/${subjectData[indexLevel].id}/lesson/${indexLevel + 1}/true');
+                          return;
+                        }
                         // Navigate to standalone lesson route
                         context.push(
-                            '/home/subject/${subjectData[indexLevel].id}/lesson/${indexLevel + 1}');
+                            '/home/subject/${subjectData[indexLevel].id}/lesson/${indexLevel + 1}/false');
                       },
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 8.0, left: 15),

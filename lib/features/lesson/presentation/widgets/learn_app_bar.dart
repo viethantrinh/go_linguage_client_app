@@ -4,7 +4,8 @@ import 'package:go_linguage/core/common/widgets/progress_bar.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/learn_lesson.dart';
 
 PreferredSizeWidget learnAppBar(
-    BuildContext context, int score, int currentExercise, int totalExercise) {
+    BuildContext context, int score, int currentExercise, int totalExercise,
+    {bool? isExam}) {
   return PreferredSize(
     preferredSize: const Size.fromHeight(100),
     child: Container(
@@ -26,7 +27,7 @@ PreferredSizeWidget learnAppBar(
                       showExitConfirmation(context);
                     },
                   ),
-                  buildStar(score, totalExercise),
+                  buildStar(score, totalExercise, isExam ?? false),
                   IconButton(
                     icon: const Icon(Icons.settings,
                         color: Colors.black54, size: 24),
@@ -47,19 +48,32 @@ PreferredSizeWidget learnAppBar(
   );
 }
 
-Widget buildStar(int score, int totalExercise) {
+Widget buildStar(int score, int totalExercise, bool isExam) {
   // Calculate stars based on percentage of correct answers
   // 0-33% = 1 star, 34-66% = 2 stars, 67-100% = 3 stars
   int stars = 0;
 
   if (totalExercise > 0) {
     double percentage = (score / totalExercise) * 100;
-
-    if (percentage >= 67) {
+    if (percentage >= 100) {
+      stars = 3;
+    } else if (percentage >= 67) {
       stars = 2;
     } else if (percentage >= 34) {
       stars = 1;
     } else if (percentage > 0) {
+      stars = 0;
+    }
+  }
+
+  if (isExam == true) {
+    if (score == totalExercise) {
+      stars = 3;
+    } else if (score >= totalExercise - 1) {
+      stars = 2;
+    } else if (score >= totalExercise - 2) {
+      stars = 1;
+    } else {
       stars = 0;
     }
   }

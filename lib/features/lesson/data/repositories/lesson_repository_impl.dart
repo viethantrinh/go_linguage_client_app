@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:go_linguage/core/error/failures.dart';
 import 'package:go_linguage/features/lesson/data/datasources/lesson_data_source.dart';
-import 'package:go_linguage/features/lesson/domain/repositories/home_repository.dart';
+import 'package:go_linguage/features/lesson/domain/repositories/lesson_repository.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/pronoun_assessment.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 

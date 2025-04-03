@@ -9,24 +9,24 @@ import 'package:go_linguage/features/subject/data/models/api_subject_model.dart'
 part 'lesson_event.dart';
 part 'lesson_state.dart';
 
-class LessonBloc extends Bloc<ViewEvent, LessonState> {
+class LessonBloc extends Bloc<GetDataEvent, LessonState> {
   final LessonViewUsecase _viewUsecase;
   final PronounUsecase _pronounUsecase;
   LessonBloc(LessonViewUsecase viewUsecase, PronounUsecase pronounUsecase)
       : _viewUsecase = viewUsecase,
         _pronounUsecase = pronounUsecase,
         super(LoadingData()) {
-    on<ViewData>(_loadData);
+    on<GetData>(_loadData);
     on<CheckPronounEvent>(_checkPronoun);
   }
 
   Future<void> _loadData(
-    ViewData event,
+    GetData event,
     Emitter<LessonState> emit,
   ) async {
     emit.call(LoadingData());
 
-    final result = await _viewUsecase.call(1);
+    final result = await _viewUsecase.call(event.id);
 
     result.fold(
       (failure) {
