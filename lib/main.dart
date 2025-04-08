@@ -13,7 +13,10 @@ import 'package:go_linguage/features/home/presentation/bloc/home_bloc.dart';
 import 'package:go_linguage/features/lesson/presentation/bloc/lesson_bloc.dart';
 import 'package:go_linguage/features/main/presentation/bloc/main_bloc.dart';
 import 'package:go_linguage/features/payment/presentation/bloc/subscription_bloc.dart';
+import 'package:go_linguage/features/song/presentation/bloc/song_bloc.dart';
 import 'package:go_linguage/features/subject/presentation/bloc/subject_bloc.dart';
+import 'package:go_linguage/features/submit/presentation/bloc/submit_bloc.dart';
+import 'package:go_linguage/features/user_info/presentation/bloc/user_bloc.dart';
 import 'package:go_linguage/init_dependencies.dart';
 
 void main() async {
@@ -40,6 +43,9 @@ void main() async {
         BlocProvider(create: (_) => serviceLocator<ExamBloc>()),
         BlocProvider(create: (_) => serviceLocator<ConversationBloc>()),
         BlocProvider(create: (_) => serviceLocator<DialogBloc>()),
+        BlocProvider(create: (_) => serviceLocator<SongBloc>()),
+        BlocProvider(create: (_) => serviceLocator<SubmitBloc>()),
+        BlocProvider(create: (_) => serviceLocator<UserBloc>()),
       ],
       child: const MyApp(),
     ),

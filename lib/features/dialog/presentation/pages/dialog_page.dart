@@ -6,9 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_linguage/core/common/widgets/back_button.dart';
 import 'package:go_linguage/core/common/widgets/cache_audio_player.dart';
 import 'package:go_linguage/core/common/widgets/progress_bar.dart';
+import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/features/dialog/data/models/api_dialog_model.dart';
 import 'package:go_linguage/features/dialog/presentation/bloc/dialog_bloc.dart';
+import 'package:go_linguage/features/submit/domain/model/submit_model.dart';
+import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
@@ -668,7 +671,14 @@ class _DialogPageState extends State<DialogPage> {
                               child: SizedBox(
                                 height: 50,
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    context.pushReplacement(AppRoutePath.submit,
+                                        extra: SubmitRequestModel(
+                                            xpPoints: 0,
+                                            goPoints: 200,
+                                            type: SubmitType.dialog,
+                                            id: 1));
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColor.primary500,
                                     foregroundColor: AppColor.white,

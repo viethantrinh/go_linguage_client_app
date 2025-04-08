@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_linguage/core/common/page/loading_page.dart';
+import 'package:go_linguage/core/common/global/global_variable.dart';
+import 'package:go_linguage/core/common/widgets/cache_image.dart';
 import 'package:go_linguage/core/common/widgets/loading_indicator.dart';
 import 'package:go_linguage/core/common/widgets/progress_bar.dart';
 import 'package:go_linguage/core/route/app_route_path.dart';
@@ -9,6 +10,8 @@ import 'package:go_linguage/features/home/data/models/home_model.dart';
 import 'package:go_linguage/features/home/presentation/bloc/home_bloc.dart';
 import 'package:go_linguage/features/main/presentation/bloc/main_bloc.dart';
 import 'package:go_linguage/features/subject/model/subject_model.dart';
+import 'package:go_linguage/features/user_info/presentation/bloc/user_bloc.dart'
+    as user_bloc;
 import 'package:go_router/go_router.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,40 +21,23 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final List<dynamic> items = List.generate(100, (index) {
-    return ItemData(icon: Icons.home, description: "Trang chủ $index");
-  });
-  List<TopicList> listData = List.generate(3, (index) {
-    return TopicList(
-      topicModelList: List.generate(5, (tp) {
-        return TopicModel(
-          id: tp,
-          icon: "",
-          title: "Đây là đài tiếng nói việt nam",
-        );
-      }),
-      title: "Cơ bản",
-    );
-  });
+class _HomePageState extends State<HomePage> with RouteAware {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      context.read<HomeBloc>().add(ViewHomeData());
+      context.read<user_bloc.UserBloc>().add(user_bloc.ViewUserProfile());
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      //await Future.delayed(Duration(seconds: 1));
-      // ignore: use_build_context_synchronously
-      context.read<HomeBloc>().add(ViewData());
-    });
-
-    // Ví dụ: Cập nhật MainBloc state khi có sự kiện nào đó
-    void updateMainState(int newIndex) {
-      context.read<MainBloc>().add(UpdateMainState(newIndex));
-    }
-
-    void _navigateToSearch(HomeResponseModel homeData) {
-      context.push(AppRoutePath.search, extra: homeData);
-    }
-
     return BlocConsumer<HomeBloc, HomeState>(
       listener: (context, state) {
         if (state is LoadedData) {
@@ -65,6 +51,7 @@ class _HomePageState extends State<HomePage> {
           final snackBar = SnackBar(content: Text(state.message));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
+        setState(() {});
       },
       builder: (context, state) {
         if (state is LoadingData) {
@@ -96,12 +83,30 @@ class _HomePageState extends State<HomePage> {
                         "Học",
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          context.push(AppRoutePath.user);
-                        },
-                        child: Icon(Icons.circle, color: Colors.blue),
-                      ),
+                      ValueListenableBuilder<int?>(
+                          valueListenable: userAvatar,
+                          builder: (context, avatar, child) {
+                            return GestureDetector(
+                              onTap: () {
+                                context.push(AppRoutePath.user);
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.orange.shade100,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(50),
+                                  child: Image.asset(
+                                    'assets/icons/user_avatar/a (${userAvatar.value}).png',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            );
+                          })
                     ],
                   ),
                   const SizedBox(height: 10), // Khoảng cách giữa hai hàng
@@ -119,10 +124,16 @@ class _HomePageState extends State<HomePage> {
                             "assets/icons/user_information/score.png",
                             height: 16,
                           ),
-                          Text(
-                            homeData.goPoints.toString(),
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
+                          ValueListenableBuilder<int?>(
+                              valueListenable: userGoPoint,
+                              builder: (context, xpPoint, child) {
+                                return Text(
+                                  //homeData.goPoints.toString(),
+                                  userGoPoint.value.toString(),
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                );
+                              })
                         ],
                       ),
                       // Row(
@@ -138,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                       // ),
                       GestureDetector(
                         onTap: () {
-                          _navigateToSearch(homeData);
+                          context.push(AppRoutePath.search, extra: homeData);
                         },
                         child: Icon(Icons.search, color: Colors.black),
                       ),
@@ -219,8 +230,8 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 spacing: 20,
                                 children: [
-                                  Image.network(
-                                    currentTopic.imageUrl,
+                                  CacheImage(
+                                    imageUrl: currentTopic.imageUrl,
                                   ),
                                   const SizedBox(
                                     width: 5,

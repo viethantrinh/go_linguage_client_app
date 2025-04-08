@@ -22,4 +22,10 @@ class ApiConstants {
   static const String getConversationData = '/main/conversation';
   static const String getDialogData = '/conversations/1/detail';
   static const String checkPronoun = '/conversations/pronoun-assessment';
+  static const String getSongData = '/songs';
+  static String submitLesson(int lessonId) => '/lessons/$lessonId/submit';
+  static String submitDialog(int conversationId) =>
+      '/conversations/$conversationId/submit';
+  static const String getUserInfo = '/users/info';
+  static const String updateUserInfo = '/users/info';
 }

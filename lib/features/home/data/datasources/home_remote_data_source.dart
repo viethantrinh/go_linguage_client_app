@@ -1,3 +1,4 @@
+import 'package:go_linguage/core/common/global/global_variable.dart';
 import 'package:go_linguage/core/constants/api_constants.dart';
 import 'package:go_linguage/core/network/dio_client.dart';
 import 'package:go_linguage/features/home/data/models/home_model.dart';
@@ -26,6 +27,8 @@ class HomeRemoteDataSourceImpl implements IHomeRemoteDataSource {
           token: token);
 
       if (response.isSuccess && response.result != null) {
+        userGoPoint.value = response.result!.goPoints;
+        homeData.value = response.result!;
         return response.result!;
       } else {
         String apiPath = response.errorResponse!.apiPath;

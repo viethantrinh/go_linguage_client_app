@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_linguage/core/common/widgets/cache_image.dart';
 import 'package:go_linguage/core/route/app_route.dart';
 import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
@@ -19,16 +20,6 @@ class _ConversationPageState extends State<ConversationPage> {
     super.initState();
     context.read<ConversationBloc>().add(ViewData());
   }
-
-  // Dữ liệu mẫu
-  final List<Map<String, dynamic>> items = List.generate(
-    10,
-    (index) => {
-      'imageUrl': 'https://picsum.photos/200/200?random=$index',
-      'title': 'Bài học ${index + 1}',
-      'isCompleted': index % 2 == 0, // Mẫu: các bài học chẵn sẽ hoàn thành
-    },
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +81,8 @@ class _ConversationPageState extends State<ConversationPage> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              item.imageUrl,
+                            child: CacheImage(
+                              imageUrl: item.imageUrl,
                               width: 60,
                               height: 60,
                               fit: BoxFit.cover,

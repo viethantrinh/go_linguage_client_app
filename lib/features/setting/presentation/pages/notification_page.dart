@@ -316,7 +316,9 @@ class _NotificationPageState extends State<NotificationPage> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: selectedDays[index] ? AppColor.yellow : Colors.transparent,
+              color: selectedDays[index]
+                  ? AppColor.primary500
+                  : Colors.transparent,
               shape: BoxShape.circle,
               border: selectedDays[index]
                   ? null
@@ -465,7 +467,7 @@ class _NotificationPageState extends State<NotificationPage> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColor.yellow,
+              backgroundColor: AppColor.primary500,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

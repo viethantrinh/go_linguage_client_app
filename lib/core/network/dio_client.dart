@@ -66,4 +66,60 @@ class DioClient {
       rethrow;
     }
   }
+
+  Future<ApiResponseModel<T>> put<T>({
+    required String url,
+    required T Function(dynamic) resultFromJson,
+    required dynamic jsonBody,
+    Map<String, dynamic>? queryParams,
+    Options? options,
+    String? token,
+  }) async {
+    try {
+      if (token != null) {
+        _dio.options.headers[authorizationHeader] = 'Bearer $token';
+      }
+
+      final response = await _dio.put(
+        url,
+        data: jsonBody,
+        queryParameters: queryParams,
+        options: options,
+      );
+      return ApiResponseModel<T>.fromJson(response.data, resultFromJson);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return ApiResponseModel<T>.fromJson(e.response!.data, resultFromJson);
+      }
+      rethrow;
+    }
+  }
+
+  Future<ApiResponseModel<T>> delete<T>({
+    required String url,
+    required T Function(dynamic) resultFromJson,
+    dynamic jsonBody,
+    Map<String, dynamic>? queryParams,
+    Options? options,
+    String? token,
+  }) async {
+    try {
+      if (token != null) {
+        _dio.options.headers[authorizationHeader] = 'Bearer $token';
+      }
+
+      final response = await _dio.delete(
+        url,
+        data: jsonBody,
+        queryParameters: queryParams,
+        options: options,
+      );
+      return ApiResponseModel<T>.fromJson(response.data, resultFromJson);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return ApiResponseModel<T>.fromJson(e.response!.data, resultFromJson);
+      }
+      rethrow;
+    }
+  }
 }
