@@ -10,9 +10,10 @@ class SubjectRepositoryImpl implements SubjectRepository {
   SubjectRepositoryImpl({required this.subjectRemoteDataSourceImpl});
 
   @override
-  Future<Either<Failure, List<LessonModel>>> getSubjectData() async {
+  Future<Either<Failure, List<LessonModel>>> getSubjectData(int topicId) async {
     try {
-      final response = await subjectRemoteDataSourceImpl.getSubjectData();
+      final response =
+          await subjectRemoteDataSourceImpl.getSubjectData(topicId);
       return Right(response);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

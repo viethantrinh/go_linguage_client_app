@@ -1,8 +1,8 @@
 class SubmitRequestModel {
-  final int xpPoints;
-  final int goPoints;
-  final SubmitType type;
-  final int id;
+  int xpPoints;
+  int goPoints;
+  SubmitType type;
+  int id;
 
   SubmitRequestModel(
       {required this.xpPoints,

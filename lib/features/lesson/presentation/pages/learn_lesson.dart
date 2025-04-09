@@ -86,7 +86,10 @@ class _LearnLessonScreenState extends State<LearnLessonScreen> {
     } else {
       context.pushReplacement(AppRoutePath.submit,
           extra: SubmitRequestModel(
-              xpPoints: 3, goPoints: 200, type: SubmitType.lesson, id: 1));
+              xpPoints: getTotalStar(_totalScore, lessonData.exercises.length),
+              goPoints: 200,
+              type: SubmitType.lesson,
+              id: widget.lessonId));
     }
   }
 

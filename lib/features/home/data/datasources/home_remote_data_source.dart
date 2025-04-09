@@ -28,7 +28,7 @@ class HomeRemoteDataSourceImpl implements IHomeRemoteDataSource {
 
       if (response.isSuccess && response.result != null) {
         userGoPoint.value = response.result!.goPoints;
-        homeData.value = response.result!;
+        homeDataGlobal.value = response.result!;
         return response.result!;
       } else {
         String apiPath = response.errorResponse!.apiPath;

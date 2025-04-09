@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:go_linguage/core/common/global/global_variable.dart';
+
 class HomeResponseModel {
   final int streakPoints;
   final int goPoints;
   final bool isSubscribed;
-  final List<LevelModel> levels;
+  List<LevelModel> levels;
 
   HomeResponseModel({
     required this.streakPoints,
@@ -22,13 +25,27 @@ class HomeResponseModel {
           [],
     );
   }
+
+  HomeResponseModel copyWith({
+    int? streakPoints,
+    int? goPoints,
+    bool? isSubscribed,
+    List<LevelModel>? levels,
+  }) {
+    return HomeResponseModel(
+      streakPoints: streakPoints ?? this.streakPoints,
+      goPoints: goPoints ?? this.goPoints,
+      isSubscribed: isSubscribed ?? this.isSubscribed,
+      levels: levels ?? this.levels,
+    );
+  }
 }
 
 class LevelModel {
   final int id;
   final String name;
-  final int totalUserXPPoints;
-  final List<TopicModel> topics;
+  int totalUserXPPoints;
+  List<TopicModel> topics;
   final int displayOrder;
 
   LevelModel({
@@ -51,13 +68,26 @@ class LevelModel {
       displayOrder: json['displayOrder'] ?? 0,
     );
   }
+
+  LevelModel copyWith({
+    int? totalUserXPPoints,
+    List<TopicModel>? topics,
+  }) {
+    return LevelModel(
+      id: id,
+      name: name,
+      totalUserXPPoints: totalUserXPPoints ?? this.totalUserXPPoints,
+      topics: topics ?? this.topics,
+      displayOrder: displayOrder,
+    );
+  }
 }
 
 class TopicModel {
   final int id;
   final String name;
   final String imageUrl;
-  final int totalUserXPPoints;
+  int totalUserXPPoints;
   final int displayOrder;
   final bool premium;
 
@@ -80,4 +110,29 @@ class TopicModel {
       premium: json['premium'] ?? false,
     );
   }
+
+  TopicModel copyWith({
+    int? totalUserXPPoints,
+  }) {
+    return TopicModel(
+      id: id,
+      name: name,
+      imageUrl: imageUrl,
+      totalUserXPPoints: totalUserXPPoints ?? this.totalUserXPPoints,
+      displayOrder: displayOrder,
+      premium: premium,
+    );
+  }
+}
+
+/// 🔁 Gọi hàm này mỗi khi bạn cập nhật dữ liệu bên trong để ép rebuild lại
+void triggerHomeDataUpdate() {
+  final current = homeDataGlobal.value!;
+  homeDataGlobal.value = current.copyWith(
+    levels: current.levels.map((level) {
+      return level.copyWith(
+        topics: level.topics.map((topic) => topic.copyWith()).toList(),
+      );
+    }).toList(),
+  );
 }

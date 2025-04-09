@@ -15,13 +15,10 @@ class SubjectBloc extends Bloc<ViewEvent, SubjectState> {
     on<ViewData>(_loadData);
   }
 
-  Future<void> _loadData(
-    ViewData event,
-    Emitter<SubjectState> emit,
-  ) async {
+  Future<void> _loadData(ViewData event, Emitter<SubjectState> emit) async {
     emit.call(LoadingData());
 
-    final result = await _viewUsecase.call(null);
+    final result = await _viewUsecase.call(1);
 
     result.fold(
       (failure) {

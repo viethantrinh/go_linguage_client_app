@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:go_linguage/core/common/global/global_variable.dart';
 import 'package:go_linguage/core/constants/api_constants.dart';
 import 'package:go_linguage/core/network/dio_client.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
@@ -7,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract interface class ISubjectRemoteDataSource {
-  Future<List<LessonModel>> getSubjectData();
+  Future<List<LessonModel>> getSubjectData(int topicId);
 }
 
 class SubjectRemoteDataSourceImpl implements ISubjectRemoteDataSource {
@@ -84,14 +85,15 @@ class SubjectRemoteDataSourceImpl implements ISubjectRemoteDataSource {
   }
 
   @override
-  Future<List<LessonModel>> getSubjectData() async {
+  Future<List<LessonModel>> getSubjectData(int topicId) async {
     try {
       // Thử đọc dữ liệu từ cache trước
-      final cachedData = await _readDataFromCache();
-      if (cachedData != null) {
-        print('Sử dụng dữ liệu từ cache (${cachedData.length} bài học)');
-        return cachedData;
-      }
+      // final cachedData = await _readDataFromCache();
+      // if (cachedData != null) {
+      //   print('Sử dụng dữ liệu từ cache (${cachedData.length} bài học)');
+
+      //   return cachedData;
+      // }
 
       // Nếu không có cache hoặc cache hết hạn, gọi API
       print('Gọi API để lấy dữ liệu mới');
@@ -120,6 +122,10 @@ class SubjectRemoteDataSourceImpl implements ISubjectRemoteDataSource {
       if (response.isSuccess && response.result != null) {
         // Lưu kết quả vào cache
         await _saveDataToCache(response.result!);
+        for (var item in response.result!) {
+          scoreData.value[item.id] = item.totalUserXpPoints;
+          lessonMapTopic[item.id] = topicId;
+        }
         return response.result!;
       } else {
         String apiPath = response.errorResponse!.apiPath;

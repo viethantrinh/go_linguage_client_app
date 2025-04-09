@@ -176,7 +176,7 @@ class UserPageState extends State<UserPage> {
                             ),
 
                             _buildGridItem(
-                              "assets/icons/user_information/proficient.png",
+                              "assets/icons/user_information/proficie.png",
                               "Thành thạo",
                               user.totalGoPoints.toString(),
                             )
@@ -299,7 +299,18 @@ class UserPageState extends State<UserPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         spacing: 15,
         children: [
-          Image.asset(icon, width: 25, height: 25),
+          Image.asset(
+            icon,
+            width: 25,
+            height: 25,
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(
+                Icons.star,
+                size: 30,
+                color: AppColor.yellow,
+              );
+            },
+          ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             //crossAxisAlignment: CrossAxisAlignment.start,

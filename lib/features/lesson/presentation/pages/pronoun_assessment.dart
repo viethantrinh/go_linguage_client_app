@@ -8,12 +8,14 @@ import 'package:go_linguage/core/common/widgets/cache_audio_player.dart';
 import 'package:go_linguage/core/common/widgets/progress_bar.dart';
 import 'package:go_linguage/core/constants/api_constants.dart';
 import 'package:go_linguage/core/network/dio_client.dart';
+import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/features/lesson/presentation/bloc/lesson_bloc.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/learn_lesson.dart';
 import 'package:go_linguage/features/lesson/presentation/widgets/learn_app_bar.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 import 'package:go_linguage/features/subject/presentation/bloc/subject_bloc.dart';
+import 'package:go_linguage/features/submit/domain/model/submit_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
@@ -21,6 +23,7 @@ import 'dart:io';
 import 'package:just_audio/just_audio.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 // To parse this JSON data, do
 //
@@ -58,11 +61,13 @@ class AssessmentModel {
 
 class PronounAssessmentScreen extends StatefulWidget {
   final List<Exercise> exercises;
+  final int lessonId;
   // Tham số callback để báo hoàn thành
 
   const PronounAssessmentScreen({
     super.key,
     required this.exercises,
+    required this.lessonId,
   });
 
   @override
@@ -98,6 +103,22 @@ class _PronounAssessmentScreenState extends State<PronounAssessmentScreen> {
   // Bắt đầu ghi âm
   Future<void> _startRecording() async {
     if (_isRecording) return;
+
+    // Kiểm tra và yêu cầu quyền ghi âm
+    final status = await Permission.microphone.request();
+
+    if (status != PermissionStatus.granted) {
+      // Hiển thị dialog thông báo nếu quyền bị từ chối
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bạn cần cấp quyền ghi âm để sử dụng tính năng này'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
 
     try {
       final tempDir = await getTemporaryDirectory();
@@ -401,7 +422,6 @@ class _PronounAssessmentScreenState extends State<PronounAssessmentScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LessonBloc, LessonState>(listener: (context, state) {
-      
       if (state is CheckPronounState) {
         final result = state.result;
         final status = state.status;
@@ -586,8 +606,13 @@ class _PronounAssessmentScreenState extends State<PronounAssessmentScreen> {
                   child: GestureDetector(
                     onTap: () {
                       if (_currentPage == widget.exercises.length - 1) {
-                        context.pushReplacement(
-                            '/complete-lesson/${getTotalScore()}');
+                        context.pushReplacement(AppRoutePath.submit,
+                            extra: SubmitRequestModel(
+                                xpPoints: getTotalStar(
+                                    getTotalScore(), widget.exercises.length),
+                                goPoints: 200,
+                                type: SubmitType.lesson,
+                                id: widget.lessonId));
                       } else {
                         _pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
