@@ -6,8 +6,10 @@ sealed class ViewEvent extends Equatable {
   List<Object> get props => [];
 }
 
-final class ViewData extends ViewEvent {
-  ViewData();
+final class ViewHomeData extends ViewEvent {
+  ViewHomeData();
   @override
   List<Object> get props => [];
 }
+
+

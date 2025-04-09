@@ -211,10 +211,9 @@ class _SearchPageState extends State<SearchPage> {
                     Row(
                       children: [
                         if (topic.totalUserXPPoints > 0) ...[
-                          const Icon(
-                            Icons.workspace_premium,
-                            color: Color(0xFFFFA000),
-                            size: 20,
+                          Image.asset(
+                            "assets/icons/user_information/proficient.png",
+                            height: 12,
                           ),
                           const SizedBox(width: 8),
                           Text('${topic.totalUserXPPoints} / 18',
@@ -256,13 +255,13 @@ class _SearchPageState extends State<SearchPage> {
               // Icon khóa hoặc check
               if (topic.premium && !widget.data.isSubscribed)
                 const Icon(Icons.lock, color: Colors.grey)
-              else if (topic.totalUserXPPoints >= 18)
-                const Icon(Icons.check_circle, color: Colors.green)
-              else if (topic.totalUserXPPoints > 0)
-                const Icon(Icons.play_circle_filled, color: Colors.blue)
-              else
-                const Icon(Icons.arrow_forward_ios,
-                    color: Colors.grey, size: 16),
+              // else if (topic.totalUserXPPoints >= 18)
+              //   const Icon(Icons.check_circle, color: Colors.green)
+              // else if (topic.totalUserXPPoints > 0)
+              //   const Icon(Icons.play_circle_filled, color: Colors.blue)
+              // else
+              //   const Icon(Icons.arrow_forward_ios,
+              //       color: Colors.grey, size: 16),
             ],
           ),
         ),

@@ -33,4 +33,6 @@ class AppRoutePath {
   static const review = '/review';
   static const song = '/song';
   static const conversation = '/conversation';
+  static const songPlayer = '/song-player';
+  static const submit = '/submit';
 }

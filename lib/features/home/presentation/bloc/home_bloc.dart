@@ -12,17 +12,18 @@ class HomeBloc extends Bloc<ViewEvent, HomeState> {
   HomeBloc(HomeViewUsecase viewUsecase)
       : _viewUsecase = viewUsecase,
         super(LoadingData()) {
-    on<ViewData>(_loadData);
+    on<ViewHomeData>(_loadData);
+
   }
 
   Future<void> _loadData(
-    ViewData event,
+    ViewHomeData event,
     Emitter<HomeState> emit,
   ) async {
     emit.call(LoadingData());
 
     final result = await _viewUsecase.call(null);
-    
+
     result.fold(
       (failure) {
         emit.call(LoadedFailure(message: failure.message));
@@ -32,4 +33,6 @@ class HomeBloc extends Bloc<ViewEvent, HomeState> {
       },
     );
   }
+
+
 }

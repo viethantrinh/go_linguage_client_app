@@ -41,6 +41,7 @@ dependencies:
   crypto: ^3.0.6
   record: ^6.0.0
   ffmpeg_kit_flutter: ^6.0.3
+  permission_handler: ^11.4.0
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +70,7 @@ flutter:
     - assets/icons/
     - assets/icons/user_information/
     - assets/icons/lessons/
+    - assets/icons/user_avatar/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

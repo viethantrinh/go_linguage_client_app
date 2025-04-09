@@ -48,11 +48,26 @@ import 'package:go_linguage/features/payment/domain/repositories/subscription_re
 import 'package:go_linguage/features/payment/domain/usecases/create_subscription_usecase.dart';
 import 'package:go_linguage/features/payment/domain/usecases/request_payment_usecase.dart';
 import 'package:go_linguage/features/payment/presentation/bloc/subscription_bloc.dart';
+import 'package:go_linguage/features/song/data/datasources/song_data_source.dart';
+import 'package:go_linguage/features/song/data/repositories/song_repository_impl.dart';
+import 'package:go_linguage/features/song/domain/repositories/song_repository.dart';
+import 'package:go_linguage/features/song/domain/usecases/song_view_usecase.dart';
+import 'package:go_linguage/features/song/presentation/bloc/song_bloc.dart';
 import 'package:go_linguage/features/subject/data/datasources/subject_data_source.dart';
 import 'package:go_linguage/features/subject/data/repositories/subject_repository_impl.dart';
 import 'package:go_linguage/features/subject/domain/repositories/subject_repository.dart';
 import 'package:go_linguage/features/subject/domain/usecases/subject_view_usecase.dart';
 import 'package:go_linguage/features/subject/presentation/bloc/subject_bloc.dart';
+import 'package:go_linguage/features/submit/data/datasources/submit_data_source.dart';
+import 'package:go_linguage/features/submit/data/repositories/submit_repository_impl.dart';
+import 'package:go_linguage/features/submit/domain/repositories/submit_repository.dart';
+import 'package:go_linguage/features/submit/domain/usecases/submit_usecase.dart';
+import 'package:go_linguage/features/submit/presentation/bloc/submit_bloc.dart';
+import 'package:go_linguage/features/user_info/data/datasources/user_data_source.dart';
+import 'package:go_linguage/features/user_info/data/repositories/user_repository_impl.dart';
+import 'package:go_linguage/features/user_info/domain/repositories/user_repository.dart';
+import 'package:go_linguage/features/user_info/domain/usecases/user_view_usecase.dart';
+import 'package:go_linguage/features/user_info/presentation/bloc/user_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -264,6 +279,65 @@ void _initAuthDependencies() {
     ..registerLazySingleton<DialogBloc>(() => DialogBloc(
           serviceLocator<DialogViewUsecase>(),
           serviceLocator<PronounDialogUsecase>(),
+        ))
+    ///////////////////////___SONG___///////////////////////
+    ..registerFactory<SongDataSourceImpl>(
+      () => SongDataSourceImpl(
+        sharedPreferences: serviceLocator<SharedPreferences>(),
+        dioClient: serviceLocator<DioClient>(),
+      ),
+    )
+    ..registerFactory<SongRepository>(
+      () => SongRepositoryImpl(
+        songRemoteDataSourceImpl: serviceLocator<SongDataSourceImpl>(),
+      ),
+    )
+    ..registerFactory<SongViewUsecase>(
+      () => SongViewUsecase(serviceLocator<SongRepository>()),
+    )
+    ..registerLazySingleton<SongBloc>(() => SongBloc(
+          serviceLocator<SongViewUsecase>(),
+        ))
+    ///////////////////////___SUBMIT___///////////////////////
+    ..registerFactory<SubmitDataSourceImpl>(
+      () => SubmitDataSourceImpl(
+        sharedPreferences: serviceLocator<SharedPreferences>(),
+        dioClient: serviceLocator<DioClient>(),
+      ),
+    )
+    ..registerFactory<SubmitRepository>(
+      () => SubmitRepositoryImpl(
+        submitRemoteDataSourceImpl: serviceLocator<SubmitDataSourceImpl>(),
+      ),
+    )
+    ..registerFactory<SubmitUsecase>(
+      () => SubmitUsecase(serviceLocator<SubmitRepository>()),
+    )
+    ..registerLazySingleton<SubmitBloc>(() => SubmitBloc(
+          serviceLocator<SubmitUsecase>(),
+        ))
+
+    ///////////////////////___USER___///////////////////////
+    ..registerFactory<UserRemoteDataSourceImpl>(
+      () => UserRemoteDataSourceImpl(
+        sharedPreferences: serviceLocator<SharedPreferences>(),
+        dioClient: serviceLocator<DioClient>(),
+      ),
+    )
+    ..registerFactory<UserRepository>(
+      () => UserRepositoryImpl(
+        userRemoteDataSourceImpl: serviceLocator<UserRemoteDataSourceImpl>(),
+      ),
+    )
+    ..registerFactory<UserViewUsecase>(
+      () => UserViewUsecase(serviceLocator<UserRepository>()),
+    )
+    ..registerFactory<UserUpdateUsecase>(
+      () => UserUpdateUsecase(serviceLocator<UserRepository>()),
+    )
+    ..registerLazySingleton<UserBloc>(() => UserBloc(
+          serviceLocator<UserViewUsecase>(),
+          serviceLocator<UserUpdateUsecase>(),
         ));
 }
 

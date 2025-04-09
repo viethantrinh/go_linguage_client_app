@@ -92,3 +92,19 @@ Widget buildStar(int score, int totalExercise, bool isExam) {
     ],
   );
 }
+
+int getTotalStar(int score, int totalExercise) {
+  if (totalExercise > 0) {
+    double percentage = (score / totalExercise) * 100;
+    if (percentage >= 100) {
+      return 3;
+    } else if (percentage >= 67) {
+      return 2;
+    } else if (percentage >= 34) {
+      return 1;
+    } else if (percentage > 0) {
+      return 0;
+    }
+  }
+  return 0;
+}

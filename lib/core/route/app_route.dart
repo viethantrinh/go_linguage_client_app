@@ -7,7 +7,6 @@ import 'package:go_linguage/features/auth/presentation/pages/sign_up_option_page
 import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/splash_page.dart';
 import 'package:go_linguage/features/dialog/presentation/pages/dialog_page.dart';
-import 'package:go_linguage/features/dialog_list/presentation/pages/dialog_page.dart';
 import 'package:go_linguage/features/exam/data/models/exam_model.dart';
 import 'package:go_linguage/features/exam/presentation/pages/dialog_learned.dart';
 import 'package:go_linguage/features/exam/presentation/pages/do_review_exam.dart';
@@ -18,17 +17,20 @@ import 'package:go_linguage/features/lesson/presentation/pages/exam_fail.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/learn_lesson.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/result.dart';
 import 'package:go_linguage/features/search/presentation/search_page.dart';
-import 'package:go_linguage/features/dialog_list/presentation/pages/conversation_page.dart';
+import 'package:go_linguage/features/dialog_list/presentation/pages/dialog_list_page.dart';
 import 'package:go_linguage/features/exam/presentation/pages/exam_page.dart';
 import 'package:go_linguage/features/home/presentation/pages/home_page.dart';
-import 'package:go_linguage/features/main/presentation/pages/lesson_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/main_scaffold.dart';
-import 'package:go_linguage/features/song/song.dart';
+import 'package:go_linguage/features/song/data/models/api_song_model.dart';
+import 'package:go_linguage/features/song/presentation/pages/song_list.dart';
+import 'package:go_linguage/features/song/presentation/pages/song_player.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 import 'package:go_linguage/features/subject/model/subject_model.dart';
 import 'package:go_linguage/features/subject/presentation/pages/subject_page.dart';
 import 'package:go_linguage/features/payment/presentation/pages/subscription_page.dart';
 import 'package:go_linguage/features/setting/presentation/pages/setting.dart';
+import 'package:go_linguage/features/submit/domain/model/submit_model.dart';
+import 'package:go_linguage/features/submit/presentation/pages/submit_page.dart';
 import 'package:go_linguage/features/user_info/presentation/pages/user_information_update.dart';
 import 'package:go_linguage/features/user_info/presentation/pages/user_page.dart';
 import 'package:go_router/go_router.dart';
@@ -217,9 +219,19 @@ class AppRoute {
       ),
       GoRoute(
         path: AppRoutePath.conversation,
-        builder: (context, state) =>  DialogPage(),
+        builder: (context, state) => DialogPage(),
       ),
-
+      GoRoute(
+        path: AppRoutePath.songPlayer,
+        builder: (context, state) =>
+            SongPlayer(songData: state.extra as SongResopnseModel),
+      ),
+      GoRoute(
+        path: AppRoutePath.submit,
+        builder: (context, state) => SubmitCompletedScreen(
+          request: state.extra as SubmitRequestModel,
+        ),
+      ),
       // Main app shell route with nested branches
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
