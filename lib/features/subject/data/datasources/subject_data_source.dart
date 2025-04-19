@@ -99,7 +99,7 @@ class SubjectRemoteDataSourceImpl implements ISubjectRemoteDataSource {
       print('Gọi API để lấy dữ liệu mới');
       String? token = await sharedPreferences.getString(tokenKey);
       final response = await dioClient.get<List<LessonModel>>(
-          url: ApiConstants.getLessonData,
+          url: ApiConstants.getLessonData(topicId),
           resultFromJson: (dynamic json) {
             // Xử lý trường hợp json là List
             if (json is List) {
