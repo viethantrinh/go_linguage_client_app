@@ -7,7 +7,8 @@ sealed class ViewEvent extends Equatable {
 }
 
 final class ViewData extends ViewEvent {
-  ViewData();
+  final int id;
+  ViewData({required this.id});
   @override
   List<Object> get props => [];
 }

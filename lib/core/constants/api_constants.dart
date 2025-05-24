@@ -16,7 +16,7 @@ class ApiConstants {
       '/payment/create-stripe-subscription';
 
   static const String getHomeData = '/main/home';
-  static const String getLessonData = '/topics/1/lessons/detail';
+  static String getLessonData(int id) => '/topics/$id/lessons/detail';
   static const String pronunciationAssessment = "/learns/pronoun-assessment";
   static const String getExamData = '/main/review';
   static const String getConversationData = '/main/conversation';

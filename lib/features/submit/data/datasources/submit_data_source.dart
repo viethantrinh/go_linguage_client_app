@@ -69,7 +69,7 @@ class SubmitDataSourceImpl implements ISubmitRemoteDataSource {
             }
           }
         }
-        triggerHomeDataUpdate();
+        //triggerHomeDataUpdate();
 
         return response.result!;
       } else {

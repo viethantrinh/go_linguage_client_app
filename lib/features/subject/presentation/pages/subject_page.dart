@@ -26,7 +26,7 @@ class _SubjectPageState extends State<SubjectPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      context.read<SubjectBloc>().add(ViewData());
+      context.read<SubjectBloc>().add(ViewData(id: widget.data.id));
     });
   }
 

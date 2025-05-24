@@ -5,6 +5,7 @@ import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:go_linguage/features/setting/presentation/pages/notification_page.dart';
+import 'package:go_linguage/features/setting/presentation/widgets/delete_account.dart';
 import 'package:go_linguage/features/setting/presentation/widgets/setting_item.dart';
 import 'package:go_linguage/features/setting/presentation/widgets/setting_section.dart';
 import 'package:go_router/go_router.dart';
@@ -201,7 +202,15 @@ class SettingPageState extends State<SettingPage> {
                     leadingIcon: Icons.delete_forever_outlined,
                     showBorder: false,
                     onTap: () {
-                      // Xử lý xóa tài khoản
+                      DeleteAccountBottomSheet.show(
+                        context,
+                        onConfirm: () {
+                          print('Xóa tài khoản');
+                        },
+                        onCancel: () {
+                          print('Hủy xóa tài khoản');
+                        },
+                      );
                     },
                   ),
                 ],
