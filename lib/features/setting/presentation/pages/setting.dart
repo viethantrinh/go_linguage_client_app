@@ -202,7 +202,15 @@ class SettingPageState extends State<SettingPage> {
                     leadingIcon: Icons.delete_forever_outlined,
                     showBorder: false,
                     onTap: () {
-                      // F
+                      // DeleteAccountBottomSheet.show(
+                      //   context,
+                      //   onConfirm: () {
+                      //     print('Xóa tài khoản');
+                      //   },
+                      //   onCancel: () {
+                      //     print('Hủy xóa tài khoản');
+                      //   },
+                      // );
                     },
                   ),
                 ],
