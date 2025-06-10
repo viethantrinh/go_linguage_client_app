@@ -20,7 +20,8 @@ class ApiConstants {
   static const String pronunciationAssessment = "/learns/pronoun-assessment";
   static const String getExamData = '/main/review';
   static const String getConversationData = '/main/conversation';
-  static const String getDialogData = '/conversations/1/detail';
+  static String getDialogData(int conversationId) =>
+      '/conversations/$conversationId/detail';
   static const String checkPronoun = '/conversations/pronoun-assessment';
   static const String getSongData = '/songs';
   static String submitLesson(int lessonId) => '/lessons/$lessonId/submit';

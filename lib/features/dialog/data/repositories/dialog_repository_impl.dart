@@ -12,9 +12,11 @@ class DialogRepositoryImpl implements DialogRepository {
   });
 
   @override
-  Future<Either<Failure, List<DialogListResopnseModel>>> getDialogData() async {
+  Future<Either<Failure, List<DialogListResopnseModel>>> getDialogData(
+      int conversationId) async {
     try {
-      final response = await dialogRemoteDataSourceImpl.getDialogData();
+      final response =
+          await dialogRemoteDataSourceImpl.getDialogData(conversationId);
       return Right(response);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

@@ -7,34 +7,34 @@ import 'package:go_linguage/features/auth/presentation/pages/sign_up_option_page
 import 'package:go_linguage/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:go_linguage/features/auth/presentation/pages/splash_page.dart';
 import 'package:go_linguage/features/dialog/presentation/pages/dialog_page.dart';
+import 'package:go_linguage/features/dialog_list/presentation/pages/dialog_list_page.dart';
 import 'package:go_linguage/features/exam/data/models/exam_model.dart';
 import 'package:go_linguage/features/exam/presentation/pages/dialog_learned.dart';
 import 'package:go_linguage/features/exam/presentation/pages/do_review_exam.dart';
+import 'package:go_linguage/features/exam/presentation/pages/exam_page.dart';
 import 'package:go_linguage/features/exam/presentation/pages/flash_card.dart';
 import 'package:go_linguage/features/exam/presentation/pages/flash_card_list.dart';
 import 'package:go_linguage/features/exam/presentation/pages/vocabulary_learned.dart';
+import 'package:go_linguage/features/home/data/models/home_model.dart';
+import 'package:go_linguage/features/home/presentation/pages/home_page.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/exam_fail.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/learn_lesson.dart';
 import 'package:go_linguage/features/lesson/presentation/pages/result.dart';
-import 'package:go_linguage/features/search/presentation/search_page.dart';
-import 'package:go_linguage/features/dialog_list/presentation/pages/dialog_list_page.dart';
-import 'package:go_linguage/features/exam/presentation/pages/exam_page.dart';
-import 'package:go_linguage/features/home/presentation/pages/home_page.dart';
 import 'package:go_linguage/features/main/presentation/pages/main_scaffold.dart';
+import 'package:go_linguage/features/payment/presentation/pages/subscription_page.dart';
+import 'package:go_linguage/features/search/presentation/search_page.dart';
+import 'package:go_linguage/features/setting/presentation/pages/setting.dart';
 import 'package:go_linguage/features/song/data/models/api_song_model.dart';
 import 'package:go_linguage/features/song/presentation/pages/song_list.dart';
 import 'package:go_linguage/features/song/presentation/pages/song_player.dart';
 import 'package:go_linguage/features/subject/data/models/api_subject_model.dart';
 import 'package:go_linguage/features/subject/model/subject_model.dart';
 import 'package:go_linguage/features/subject/presentation/pages/subject_page.dart';
-import 'package:go_linguage/features/payment/presentation/pages/subscription_page.dart';
-import 'package:go_linguage/features/setting/presentation/pages/setting.dart';
 import 'package:go_linguage/features/submit/domain/model/submit_model.dart';
 import 'package:go_linguage/features/submit/presentation/pages/submit_page.dart';
 import 'package:go_linguage/features/user_info/presentation/pages/user_information_update.dart';
 import 'package:go_linguage/features/user_info/presentation/pages/user_page.dart';
 import 'package:go_router/go_router.dart';
-import 'package:go_linguage/features/home/data/models/home_model.dart';
 
 class AppRoute {
   static final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -219,7 +219,11 @@ class AppRoute {
       ),
       GoRoute(
         path: AppRoutePath.conversation,
-        builder: (context, state) => DialogPage(),
+        builder: (context, state) {
+          final conversationId =
+              int.parse(state.pathParameters['conversationId'] ?? '1');
+          return DialogPage(conversationId: conversationId);
+        },
       ),
       GoRoute(
         path: AppRoutePath.songPlayer,

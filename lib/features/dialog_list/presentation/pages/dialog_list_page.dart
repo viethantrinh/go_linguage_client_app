@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_linguage/core/common/widgets/cache_image.dart';
-import 'package:go_linguage/core/route/app_route.dart';
 import 'package:go_linguage/core/route/app_route_path.dart';
 import 'package:go_linguage/core/theme/app_color.dart';
 import 'package:go_linguage/features/dialog_list/presentation/bloc/conversation_bloc.dart';
@@ -61,7 +60,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     if (item.premium) {
                       context.go(AppRoutePath.subscription);
                     } else {
-                      context.push(AppRoutePath.conversation);
+                      context.push('/conversation/${item.id}');
                     }
                   },
                   child: Opacity(

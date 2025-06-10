@@ -32,7 +32,7 @@ class AppRoutePath {
   static const flashCardList = '/flash-card-list';
   static const review = '/review';
   static const song = '/song';
-  static const conversation = '/conversation';
+  static const conversation = '/conversation/:conversationId';
   static const songPlayer = '/song-player';
   static const submit = '/submit';
 }

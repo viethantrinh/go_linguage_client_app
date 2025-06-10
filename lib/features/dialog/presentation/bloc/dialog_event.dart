@@ -5,11 +5,14 @@ sealed class ViewEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
-  
+
 final class ViewData extends ViewEvent {
-  ViewData();
+  final int conversationId;
+
+  ViewData({required this.conversationId});
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [conversationId];
 }
 
 final class SendToServer extends ViewEvent {

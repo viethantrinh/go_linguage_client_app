@@ -1,15 +1,14 @@
-import 'dart:convert';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:go_linguage/core/constants/api_constants.dart';
 import 'package:go_linguage/core/network/dio_client.dart';
 import 'package:go_linguage/features/dialog/data/models/api_dialog_model.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract interface class IDialogRemoteDataSource {
-  Future<List<DialogListResopnseModel>> getDialogData();
+  Future<List<DialogListResopnseModel>> getDialogData(int conversationId);
   Future<String?> sendToServer(String ogaPath, String conversationLineId);
 }
 
@@ -27,11 +26,12 @@ class DialogRemoteDataSourceImpl implements IDialogRemoteDataSource {
   });
 
   @override
-  Future<List<DialogListResopnseModel>> getDialogData() async {
+  Future<List<DialogListResopnseModel>> getDialogData(
+      int conversationId) async {
     try {
       String? token = await sharedPreferences.getString(tokenKey);
       final response = await dioClient.get<List<DialogListResopnseModel>>(
-          url: ApiConstants.getDialogData,
+          url: ApiConstants.getDialogData(conversationId),
           resultFromJson: (dynamic json) {
             // Xử lý trường hợp json là List
             if (json is List) {
@@ -61,9 +61,9 @@ class DialogRemoteDataSourceImpl implements IDialogRemoteDataSource {
         throw Exception('$errorMessage occured on $apiPath');
       }
     } catch (e) {
-      print('Error in getConversationData: ${e.toString()}');
+      print('Error in getDialogData: ${e.toString()}');
 
-      throw Exception('Sign in failed: ${e.toString()}');
+      throw Exception('Get dialog data failed: ${e.toString()}');
     }
   }
 

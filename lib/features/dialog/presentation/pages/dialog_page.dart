@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_linguage/core/common/widgets/back_button.dart';
@@ -13,13 +15,13 @@ import 'package:go_linguage/features/dialog/presentation/bloc/dialog_bloc.dart';
 import 'package:go_linguage/features/submit/domain/model/submit_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:record/record.dart';
 
 class DialogPage extends StatefulWidget {
-  const DialogPage({super.key});
+  final int conversationId;
+
+  const DialogPage({super.key, required this.conversationId});
 
   @override
   State<DialogPage> createState() => _DialogPageState();
@@ -43,7 +45,9 @@ class _DialogPageState extends State<DialogPage> {
     super.initState();
     // Show bottom sheet after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DialogBloc>().add(ViewData());
+      context
+          .read<DialogBloc>()
+          .add(ViewData(conversationId: widget.conversationId));
     });
   }
 
@@ -218,9 +222,8 @@ class _DialogPageState extends State<DialogPage> {
           }
 
           if (mounted) {
-            context
-                .read<DialogBloc>()
-                .add(SendToServer(ogaPath, (currentStep + 1).toString()));
+            context.read<DialogBloc>().add(SendToServer(
+                ogaPath, dialogModelList[currentStep].id.toString()));
           }
         } else {
           _showNoAudioDetectedDialog();
@@ -677,7 +680,7 @@ class _DialogPageState extends State<DialogPage> {
                                             xpPoints: 0,
                                             goPoints: 200,
                                             type: SubmitType.dialog,
-                                            id: 1));
+                                            id: widget.conversationId));
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColor.primary500,
