@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_linguage/core/common/widgets/back_button.dart';
-import 'package:go_linguage/features/home/data/models/home_model.dart';
-import 'package:go_linguage/features/lesson/presentation/pages/learn_lesson.dart';
-import 'package:go_router/go_router.dart';
 import 'package:go_linguage/core/route/app_route_path.dart';
+import 'package:go_linguage/features/home/data/models/home_model.dart';
+import 'package:go_linguage/features/subject/model/subject_model.dart';
+import 'package:go_router/go_router.dart';
 
 class SearchPage extends StatefulWidget {
   final HomeResponseModel data;
@@ -171,13 +171,19 @@ class _SearchPageState extends State<SearchPage> {
     return GestureDetector(
       onTap: () {
         if (!topic.premium || widget.data.isSubscribed) {
-          // Tìm subjectId và lessonId
+          // Tìm subjectId từ level
           final subjectId = level.id.toString();
-          final lessonId = topic.id.toString();
 
-          // Điều hướng đến trang bài học
-          context
-              .push('${AppRoutePath.home}/subject/$subjectId/lesson/$lessonId');
+          // Tạo SubjectModel để truyền qua extra
+          final subjectModel = SubjectModel(
+            id: int.parse(subjectId),
+            title: level.name, // Sử dụng tên level làm title
+            progress:
+                topic.totalUserXPPoints, // Sử dụng progress của topic hiện tại
+          );
+
+          // Điều hướng đến trang subject với SubjectModel
+          context.push(AppRoutePath.subject, extra: subjectModel);
         } else {
           // Nếu là bài học premium và người dùng chưa đăng ký
           context.push(AppRoutePath.subscription);

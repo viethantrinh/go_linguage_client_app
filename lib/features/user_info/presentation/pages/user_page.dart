@@ -172,13 +172,13 @@ class UserPageState extends State<UserPage> {
                             _buildGridItem(
                               "assets/icons/user_information/score.png",
                               "Tổng số điểm",
-                              user.totalXpPoints.toString(),
+                              user.totalGoPoints.toString(),
                             ),
 
                             _buildGridItem(
                               "assets/icons/user_information/proficie.png",
                               "Thành thạo",
-                              user.totalGoPoints.toString(),
+                              user.totalXpPoints.toString(),
                             )
                             // _buildGridItem(
                             //   "assets/icons/user_information/streak.png",
