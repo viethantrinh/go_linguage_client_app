@@ -101,7 +101,6 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget _buildTestNotificationButton() {
     return ElevatedButton(
       onPressed: () async {
-        await _notificationService.showTestNotification();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(

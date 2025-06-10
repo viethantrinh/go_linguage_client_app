@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz_data;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -90,36 +92,104 @@ class NotificationService {
     return true;
   }
 
-  Future<void> showTestNotification() async {
-    // Kiểm tra quyền thông báo trước khi hiển thị
-    final bool hasPermission = await requestNotificationPermissions();
-    if (!hasPermission) {
-      print('Không có quyền hiển thị thông báo');
-      return;
+  Future<bool> canScheduleExactAlarms() async {
+    if (Platform.isAndroid) {
+      try {
+        final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+            flutterLocalNotificationsPlugin
+                .resolvePlatformSpecificImplementation<
+                    AndroidFlutterLocalNotificationsPlugin>();
+
+        if (androidImplementation != null) {
+          return await androidImplementation.canScheduleExactNotifications() ??
+              false;
+        }
+      } catch (e) {
+        print('Lỗi khi kiểm tra quyền exact alarm: $e');
+      }
+    }
+    return true;
+  }
+
+  Future<bool> requestExactAlarmPermission() async {
+    if (Platform.isAndroid) {
+      try {
+        final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+            flutterLocalNotificationsPlugin
+                .resolvePlatformSpecificImplementation<
+                    AndroidFlutterLocalNotificationsPlugin>();
+
+        if (androidImplementation != null) {
+          return await androidImplementation.requestExactAlarmsPermission() ??
+              false;
+        }
+      } catch (e) {
+        print('Lỗi khi yêu cầu quyền exact alarm: $e');
+      }
+    }
+    return true;
+  }
+
+  Future<void> openAlarmSettings() async {
+    if (Platform.isAndroid) {
+      try {
+        const platform = MethodChannel('notification_settings');
+        await platform.invokeMethod('openAlarmSettings');
+      } catch (e) {
+        print('Lỗi khi mở cài đặt alarm: $e');
+      }
+    }
+  }
+
+  /// Kiểm tra tất cả các quyền cần thiết cho thông báo
+  Future<Map<String, bool>> checkAllPermissions() async {
+    final Map<String, bool> permissions = {
+      'notifications': false,
+      'exactAlarms': false,
+    };
+
+    // Kiểm tra quyền thông báo
+    permissions['notifications'] = await requestNotificationPermissions();
+
+    // Kiểm tra quyền exact alarm (chỉ cho Android)
+    if (Platform.isAndroid) {
+      permissions['exactAlarms'] = await canScheduleExactAlarms();
+    } else {
+      permissions['exactAlarms'] = true; // iOS không cần quyền này
     }
 
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      _notificationChannelId,
-      _notificationChannelName,
-      channelDescription: _notificationChannelDescription,
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: true,
-    );
+    return permissions;
+  }
 
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
+  /// Lấy thông tin trạng thái quyền và hướng dẫn người dùng
+  Future<String> getPermissionStatus() async {
+    final permissions = await checkAllPermissions();
 
-    // await flutterLocalNotificationsPlugin.show(
-    //   0,
-    //   'Kiểm tra thông báo',
-    //   'Đây là thông báo kiểm tra',
-    //   platformChannelSpecifics,
-    //   payload: 'test',
-    // );
+    if (permissions['notifications'] == true &&
+        permissions['exactAlarms'] == true) {
+      return 'Tất cả quyền đã được cấp. Thông báo sẽ hoạt động bình thường.';
+    }
 
-    //print('Đã gửi thông báo kiểm tra');
+    List<String> issues = [];
+    if (permissions['notifications'] == false) {
+      issues.add('- Quyền hiển thị thông báo');
+    }
+    if (permissions['exactAlarms'] == false && Platform.isAndroid) {
+      issues.add('- Quyền lên lịch báo thức chính xác');
+    }
+
+    String message = 'Các quyền sau chưa được cấp:\n${issues.join('\n')}\n\n';
+
+    if (Platform.isAndroid) {
+      message += 'Để cấp quyền:\n'
+          '1. Mở Settings > Apps > go_linguage\n'
+          '2. Nhấn vào Permissions\n'
+          '3. Bật "Notifications" và "Alarms & reminders"';
+    } else {
+      message += 'Vui lòng cấp quyền thông báo trong Settings của iPhone.';
+    }
+
+    return message;
   }
 
   Future<void> scheduleStudyReminder({
@@ -131,6 +201,21 @@ class NotificationService {
     if (!hasPermission) {
       print('Không có quyền hiển thị thông báo');
       return;
+    }
+
+    // Kiểm tra và yêu cầu quyền exact alarm cho Android
+    if (Platform.isAndroid) {
+      final bool canScheduleExact = await canScheduleExactAlarms();
+      if (!canScheduleExact) {
+        print('Không có quyền lên lịch exact alarm, đang yêu cầu quyền...');
+        final bool exactAlarmGranted = await requestExactAlarmPermission();
+        if (!exactAlarmGranted) {
+          print(
+              'Người dùng từ chối quyền exact alarm. Thông báo có thể không chính xác về thời gian.');
+          print(
+              'Bạn có thể cấp quyền thủ công trong Settings > Apps > go_linguage > Permissions > Alarms & reminders');
+        }
+      }
     }
 
     // Cancel existing notifications
@@ -192,21 +277,48 @@ class NotificationService {
             'Lên lịch thông báo ID $id cho ngày ${scheduledDate.day}/${scheduledDate.month} lúc ${scheduledDate.hour}:${scheduledDate.minute}');
 
         try {
+          // Kiểm tra xem có thể lên lịch exact alarm hay không
+          final bool canScheduleExact = await canScheduleExactAlarms();
+          final AndroidScheduleMode scheduleMode = canScheduleExact
+              ? AndroidScheduleMode.exactAllowWhileIdle
+              : AndroidScheduleMode.inexactAllowWhileIdle;
+
           await flutterLocalNotificationsPlugin.zonedSchedule(
             id,
             'Nhắc nhở học tập',
             'Đã đến giờ học tập của bạn rồi đấy!',
             scheduledDateTime,
             notificationDetails,
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            androidScheduleMode: scheduleMode,
             uiLocalNotificationDateInterpretation:
                 UILocalNotificationDateInterpretation.absoluteTime,
             matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
             payload: 'study_reminder',
           );
-          print('Đã lên lịch thông báo ID $id thành công');
+          print(
+              'Đã lên lịch thông báo ID $id thành công với mode: ${canScheduleExact ? "exact" : "inexact"}');
         } catch (e) {
           print('Lỗi khi lên lịch thông báo: $e');
+
+          // Fallback: Thử với inexact scheduling
+          try {
+            await flutterLocalNotificationsPlugin.zonedSchedule(
+              id,
+              'Nhắc nhở học tập',
+              'Đã đến giờ học tập của bạn rồi đấy!',
+              scheduledDateTime,
+              notificationDetails,
+              androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+              uiLocalNotificationDateInterpretation:
+                  UILocalNotificationDateInterpretation.absoluteTime,
+              matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+              payload: 'study_reminder',
+            );
+            print('Đã lên lịch thông báo ID $id với inexact mode');
+          } catch (fallbackError) {
+            print(
+                'Lỗi khi lên lịch thông báo với inexact mode: $fallbackError');
+          }
         }
       }
     }
@@ -217,9 +329,6 @@ class NotificationService {
       selectedTime: selectedTime,
       notificationIds: notificationIds,
     );
-
-    // Hiển thị thông báo ngay lập tức để kiểm tra
-    await showTestNotification();
   }
 
   Future<void> cancelAllNotifications() async {
