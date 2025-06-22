@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_linguage/core/common/global/global_variable.dart';
 
 class HomeResponseModel {
@@ -125,14 +124,14 @@ class TopicModel {
   }
 }
 
-// /// 🔁 Gọi hàm này mỗi khi bạn cập nhật dữ liệu bên trong để ép rebuild lại
-// void triggerHomeDataUpdate() {
-//   final current = homeDataGlobal.value!;
-//   homeDataGlobal.value = current.copyWith(
-//     levels: current.levels.map((level) {
-//       return level.copyWith(
-//         topics: level.topics.map((topic) => topic.copyWith()).toList(),
-//       );
-//     }).toList(),
-//   );
-// }
+/// 🔁 Gọi hàm này mỗi khi bạn cập nhật dữ liệu bên trong để ép rebuild lại
+void triggerHomeDataUpdate() {
+  final current = homeDataGlobal.value!;
+  homeDataGlobal.value = current.copyWith(
+    levels: current.levels.map((level) {
+      return level.copyWith(
+        topics: level.topics.map((topic) => topic.copyWith()).toList(),
+      );
+    }).toList(),
+  );
+}
